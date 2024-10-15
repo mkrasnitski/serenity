@@ -46,6 +46,10 @@ enum_number! {
     #[serde(from = "u8", into = "u8")]
     #[non_exhaustive]
     pub enum SkuKind {
+        /// A durable one-time purchase.
+        Durable = 2,
+        /// A consumable one-time purchase.
+        Consumable = 3,
         /// Represents a recurring subscription.
         Subscription = 5,
         /// A system-generated group for each SKU created of type [`SkuKind::Subscription`].
@@ -98,6 +102,8 @@ pub struct Entitlement {
     pub ends_at: Option<Timestamp>,
     /// The ID of the guild that is granted access to the SKU.
     pub guild_id: Option<GuildId>,
+    /// For consumable items, whether or not the entitlement has been consumed.
+    pub consumed: Option<bool>,
 }
 
 impl Entitlement {
@@ -133,6 +139,20 @@ enum_number! {
     #[serde(from = "u8", into = "u8")]
     #[non_exhaustive]
     pub enum EntitlementKind {
+        /// Entitlement was purchased by a user.
+        Purchase = 1,
+        /// Entitlement for a Discord Nitro subscription.
+        PremiumSubscription = 2,
+        /// Entitlement was gifted by an app developer.
+        DeveloperGift = 3,
+        /// Entitlement was purchased by a developer in application test mode.
+        TestModePurchase = 4,
+        /// Entitlement was granted when the corresponding SKU was free.
+        FreePurchase = 5,
+        /// Entitlement was gifted by another user.
+        UserGift = 6,
+        /// Entitlement was claimed by user for free as a Nitro Subscriber.
+        PremiumPurchase = 7,
         /// Entitlement was purchased as an app subscription.
         ApplicationSubscription = 8,
         _ => Unknown(u8),
