@@ -28,6 +28,7 @@ enum_number! {
         Separator = 14,
         Container = 17,
         Label = 18,
+        FileUpload = 19,
         _ => Unknown(u8),
     }
 }

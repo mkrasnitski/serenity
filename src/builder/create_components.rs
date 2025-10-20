@@ -1,5 +1,6 @@
 use std::borrow::Cow;
 
+use nonmax::NonMaxU8;
 use serde::Serialize;
 
 use crate::model::prelude::*;
@@ -527,6 +528,16 @@ impl<'a> CreateLabel<'a> {
         }
     }
 
+    /// Create a file upload with a specific label.
+    pub fn file_upload(label: impl Into<Cow<'a, str>>, file_upload: impl Into<CreateFileUpload<'a>>) -> Self {
+        Self {
+            kind: ComponentType::FileUpload,
+            label: label.into(),
+            description: None,
+            component: CreateLabelComponent::FileUpload(file_upload.into())
+        }
+    }
+
     /// Sets the description of this component, which will display underneath the label text.
     pub fn description(mut self, description: impl Into<Cow<'a, str>>) -> Self {
         self.description = Some(description.into());
@@ -541,6 +552,7 @@ impl<'a> CreateLabel<'a> {
 enum CreateLabelComponent<'a> {
     SelectMenu(CreateSelectMenu<'a>),
     InputText(CreateInputText<'a>),
+    FileUpload(CreateFileUpload<'a>),
 }
 
 enum_number! {
@@ -1002,6 +1014,68 @@ impl<'a> CreateInputText<'a> {
     /// Sets if the input text is required
     pub fn required(mut self, required: bool) -> Self {
         self.required = required;
+        self
+    }
+}
+
+/// File Upload is an interactive component that allows users to upload files in modals. File Uploads can be configured to have a minimum and maximum number of files between 0 and 10, along with required for if the upload is required to submit the modal. The max file size a user can upload is based on the user's upload limit in that channel.
+/// File Uploads are available on modals. They must be placed inside a Label.
+/// 
+/// [Discord Docs](discord.com/developers/docs/components/reference#file-upload)
+#[derive(Clone, Debug, Serialize)]
+#[must_use]
+pub struct CreateFileUpload<'a> {
+    #[serde(rename = "type")]
+	kind: ComponentType,
+	 custom_id: Cow<'a, str>,
+	#[serde(skip_serializing_if = "Option::is_none")]
+	 min_values: Option<NonMaxU8>,
+	#[serde(skip_serializing_if = "Option::is_none")]
+	 max_values: Option<NonMaxU8>,
+	#[serde(skip_serializing_if = "Option::is_none")]
+	 required: Option<bool>,
+}
+
+
+impl<'a> CreateFileUpload<'a> {
+    /// Creates a file upload with the given custom id (a developer-defined identifier), leaving all other fields empty.
+    pub fn new( custom_id: impl Into<Cow<'a, str>>) -> Self {
+        Self {
+            custom_id: custom_id.into(),
+
+            min_values: None,
+            max_values: None,
+            required: None,
+
+            kind: ComponentType::InputText,
+        }
+    }
+
+    /// Sets the custom id of the input text (a developer-defined identifier). Replaces the current
+    /// value as set in [`Self::new`].
+    pub fn custom_id(mut self, id: impl Into<Cow<'a, str>>) -> Self {
+        self.custom_id = id.into();
+        self
+    }
+
+    
+
+    /// Sets the minimum number of files for the file upload.
+    pub fn min_values(mut self, min: NonMaxU8) -> Self {
+        self.min_values = Some(min);
+
+        self
+    }
+
+    /// Sets the maximum number of files for the file upload
+    pub fn max_values(mut self, max: NonMaxU8) -> Self {
+        self.max_values = Some(max);
+        self
+    }
+
+    /// Sets if the input text is required
+    pub fn required(mut self, required: bool) -> Self {
+        self.required = Some(required);
         self
     }
 }
