@@ -56,7 +56,7 @@ impl ThreadId {
 
         #[cfg(all(feature = "cache", feature = "temp_cache"))]
         if let Some(cache) = cache_http.cache() {
-            use crate::cache::wrappers::MaybeOwnedArc;
+            use crate::cache::MaybeOwnedArc;
 
             let cached_thread = MaybeOwnedArc::new(guild_thread.clone());
             cache.temp_threads.insert(self, cached_thread);

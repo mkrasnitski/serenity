@@ -1,5 +1,6 @@
 //! Wrappers around library types for easier use.
 
+use std::fmt::Debug;
 use std::hash::Hash;
 #[cfg(feature = "temp_cache")]
 use std::sync::Arc;
@@ -10,28 +11,34 @@ use dashmap::mapref::one::{Ref, RefMut};
 #[cfg(feature = "typesize")]
 use typesize::TypeSize;
 
-#[derive(Debug)]
+pub type HashMap<K, V> = DashMap<K, V, foldhash::fast::RandomState>;
+#[cfg(feature = "temp_cache")]
+pub type MokaCache<K, V> = mini_moka::sync::Cache<K, V, foldhash::fast::RandomState>;
+
 /// A wrapper around Option<DashMap<K, V>> to ease disabling specific cache fields.
-pub(crate) struct MaybeMap<K: Eq + Hash, V>(pub(crate) Option<DashMap<K, V, BuildHasher>>);
+#[cfg_attr(feature = "typesize", derive(TypeSize))]
+#[derive(Debug)]
+pub struct MaybeMap<K, V>(pub Option<HashMap<K, V>>);
+
 impl<K: Eq + Hash, V> MaybeMap<K, V> {
     pub fn iter(&self) -> impl Iterator<Item = RefMulti<'_, K, V>> {
-        Option::iter(&self.0).flat_map(DashMap::iter)
+        self.0.iter().flat_map(DashMap::iter)
     }
 
-    pub fn get(&self, k: &K) -> Option<Ref<'_, K, V>> {
-        self.0.as_ref()?.get(k)
+    pub fn get(&self, key: &K) -> Option<Ref<'_, K, V>> {
+        self.0.as_ref()?.get(key)
     }
 
-    pub fn get_mut(&self, k: &K) -> Option<RefMut<'_, K, V>> {
-        self.0.as_ref()?.get_mut(k)
+    pub fn get_mut(&self, key: &K) -> Option<RefMut<'_, K, V>> {
+        self.0.as_ref()?.get_mut(key)
     }
 
-    pub fn insert(&self, k: K, v: V) -> Option<V> {
-        self.0.as_ref()?.insert(k, v)
+    pub fn insert(&self, key: K, value: V) -> Option<V> {
+        self.0.as_ref()?.insert(key, value)
     }
 
-    pub fn remove(&self, k: &K) -> Option<(K, V)> {
-        self.0.as_ref()?.remove(k)
+    pub fn remove(&self, key: &K) -> Option<(K, V)> {
+        self.0.as_ref()?.remove(key)
     }
 
     pub fn len(&self) -> usize {
@@ -49,23 +56,11 @@ impl<K: Eq + Hash, V> MaybeMap<K, V> {
     }
 }
 
-#[cfg(feature = "typesize")]
-impl<K: Eq + Hash + TypeSize, V: TypeSize> TypeSize for MaybeMap<K, V> {
-    fn extra_size(&self) -> usize {
-        self.0.as_ref().map(DashMap::extra_size).unwrap_or_default()
-    }
-
-    typesize::if_typesize_details! {
-        fn get_collection_item_count(&self) -> Option<usize> {
-            self.0.as_ref().and_then(DashMap::get_collection_item_count)
-        }
-    }
-}
-
-#[derive(Clone, Copy, Debug)]
 /// A wrapper around a reference to a MaybeMap, allowing for public inspection of the underlying
 /// map without allowing mutation of internal cache fields, which could cause issues.
-pub struct ReadOnlyMapRef<'a, K: Eq + Hash, V>(Option<&'a DashMap<K, V, BuildHasher>>);
+#[cfg_attr(feature = "typesize", derive(TypeSize))]
+#[derive(Clone, Copy, Debug)]
+pub struct ReadOnlyMapRef<'a, K, V>(Option<&'a HashMap<K, V>>);
 impl<K: Eq + Hash, V> ReadOnlyMapRef<'_, K, V> {
     pub fn iter(&self) -> impl Iterator<Item = RefMulti<'_, K, V>> {
         self.0.into_iter().flat_map(DashMap::iter)
@@ -83,32 +78,12 @@ impl<K: Eq + Hash, V> ReadOnlyMapRef<'_, K, V> {
         self.0.is_some_and(|m| m.contains_key(k))
     }
 }
-pub struct Hasher<'a>(foldhash::fast::FoldHasher<'a>);
-impl std::hash::Hasher for Hasher<'_> {
-    fn finish(&self) -> u64 {
-        self.0.finish()
-    }
 
-    fn write(&mut self, bytes: &[u8]) {
-        self.0.write(bytes);
+impl<'a, K, V> From<&'a MaybeMap<K, V>> for ReadOnlyMapRef<'a, K, V> {
+    fn from(value: &'a MaybeMap<K, V>) -> Self {
+        Self(value.0.as_ref())
     }
 }
-
-#[cfg(feature = "typesize")]
-impl typesize::TypeSize for Hasher<'_> {}
-
-#[derive(Clone, Default)]
-pub struct BuildHasher(foldhash::fast::RandomState);
-impl std::hash::BuildHasher for BuildHasher {
-    type Hasher = Hasher<'static>;
-
-    fn build_hasher(&self) -> Self::Hasher {
-        Hasher(self.0.build_hasher())
-    }
-}
-
-#[cfg(feature = "typesize")]
-impl typesize::TypeSize for BuildHasher {}
 
 /// Wrapper around `SizableArc<T, Owned>`` with support for disabling typesize.
 ///

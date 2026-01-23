@@ -61,7 +61,7 @@ percent-encoding = { version = "2.3.2", optional = true }
 mini-moka = { version = "0.10.3", optional = true }
 mime_guess = { version = "2.0.5", optional = true }
 mime ={ version = "0.3.16", optional = true }
-dashmap = { version = "6.1.0", features = ["serde"], optional = true }
+dashmap = { git = "https://github.com/mkrasnitski/dashmap", branch = "where-bounds", features = ["serde"], optional = true }
 parking_lot = { version = "0.12.5" }
 ed25519-dalek = { version = "2.2.0", optional = true }
 typesize = { version = "0.1.14", optional = true, features = ["url", "time", "serde_json", "secrecy", "parking_lot", "nonmax"] }

@@ -25,7 +25,6 @@
 //! [Manage Guild]: Permissions::MANAGE_GUILD
 
 use std::collections::{HashSet, VecDeque};
-use std::hash::Hash;
 use std::num::NonZeroU16;
 #[cfg(feature = "temp_cache")]
 use std::sync::Arc;
@@ -34,8 +33,6 @@ use std::time::Duration;
 
 use dashmap::DashMap;
 use dashmap::mapref::one::{MappedRef, Ref};
-#[cfg(feature = "temp_cache")]
-use mini_moka::sync::Cache as MokaCache;
 use parking_lot::RwLock;
 #[cfg(feature = "tracing_instrument")]
 use tracing::instrument;
@@ -47,29 +44,29 @@ use crate::model::prelude::*;
 mod cache_update;
 mod event;
 mod settings;
-pub(crate) mod wrappers;
+mod wrappers;
 
+use wrappers::{HashMap, MaybeMap, ReadOnlyMapRef};
 #[cfg(feature = "temp_cache")]
-pub(crate) use wrappers::MaybeOwnedArc;
-use wrappers::{BuildHasher, MaybeMap, ReadOnlyMapRef};
+pub(crate) use wrappers::{MaybeOwnedArc, MokaCache};
 
 struct NotSend;
 
-enum CacheRefInner<'a, K, V, T> {
+enum CacheRefInner<'a, K, V> {
     #[cfg(feature = "temp_cache")]
     Arc(Arc<V>),
     DashRef(Ref<'a, K, V>),
-    DashMappedRef(MappedRef<'a, K, T, V>),
+    DashMappedRef(MappedRef<'a, K, V>),
     ReadGuard(parking_lot::RwLockReadGuard<'a, V>),
 }
 
-pub struct CacheRef<'a, K, V, T = ()> {
-    inner: CacheRefInner<'a, K, V, T>,
+pub struct CacheRef<'a, K, V> {
+    inner: CacheRefInner<'a, K, V>,
     phantom: std::marker::PhantomData<*const NotSend>,
 }
 
-impl<'a, K, V, T> CacheRef<'a, K, V, T> {
-    fn new(inner: CacheRefInner<'a, K, V, T>) -> Self {
+impl<'a, K, V> CacheRef<'a, K, V> {
+    fn new(inner: CacheRefInner<'a, K, V>) -> Self {
         Self {
             inner,
             phantom: std::marker::PhantomData,
@@ -85,7 +82,7 @@ impl<'a, K, V, T> CacheRef<'a, K, V, T> {
         Self::new(CacheRefInner::DashRef(inner))
     }
 
-    fn from_mapped_ref(inner: MappedRef<'a, K, T, V>) -> Self {
+    fn from_mapped_ref(inner: MappedRef<'a, K, V>) -> Self {
         Self::new(CacheRefInner::DashMappedRef(inner))
     }
 
@@ -94,7 +91,7 @@ impl<'a, K, V, T> CacheRef<'a, K, V, T> {
     }
 }
 
-impl<K: Eq + Hash, V, T> std::ops::Deref for CacheRef<'_, K, V, T> {
+impl<K, V> std::ops::Deref for CacheRef<'_, K, V> {
     type Target = V;
 
     fn deref(&self) -> &Self::Target {
@@ -110,12 +107,12 @@ impl<K: Eq + Hash, V, T> std::ops::Deref for CacheRef<'_, K, V, T> {
 
 type Never = std::convert::Infallible;
 
-pub type UserRef<'a> = CacheRef<'a, UserId, User, Never>;
-pub type GuildRef<'a> = CacheRef<'a, GuildId, Guild, Never>;
-pub type SettingsRef<'a> = CacheRef<'a, Never, Settings, Never>;
-pub type CurrentUserRef<'a> = CacheRef<'a, Never, CurrentUser, Never>;
-pub type MessageRef<'a> = CacheRef<'a, GenericChannelId, Message, VecDeque<Message>>;
-pub type ChannelMessagesRef<'a> = CacheRef<'a, GenericChannelId, VecDeque<Message>, Never>;
+pub type UserRef<'a> = CacheRef<'a, UserId, User>;
+pub type GuildRef<'a> = CacheRef<'a, GuildId, Guild>;
+pub type SettingsRef<'a> = CacheRef<'a, Never, Settings>;
+pub type CurrentUserRef<'a> = CacheRef<'a, Never, CurrentUser>;
+pub type MessageRef<'a> = CacheRef<'a, GenericChannelId, Message>;
+pub type ChannelMessagesRef<'a> = CacheRef<'a, GenericChannelId, VecDeque<Message>>;
 
 #[cfg_attr(feature = "typesize", derive(typesize::derive::TypeSize))]
 #[derive(Debug)]
@@ -153,27 +150,27 @@ pub struct Cache {
     ///
     /// The TTL for each value is configured in CacheSettings.
     #[cfg(feature = "temp_cache")]
-    pub(crate) temp_channels: MokaCache<ChannelId, MaybeOwnedArc<GuildChannel>, BuildHasher>,
+    pub(crate) temp_channels: MokaCache<ChannelId, MaybeOwnedArc<GuildChannel>>,
     /// Cache of threads that have been fetched via to_channel.
     ///
     /// The TTL for each value is configured in CacheSettings.
     #[cfg(feature = "temp_cache")]
-    pub(crate) temp_threads: MokaCache<ThreadId, MaybeOwnedArc<GuildThread>, BuildHasher>,
+    pub(crate) temp_threads: MokaCache<ThreadId, MaybeOwnedArc<GuildThread>>,
     /// Cache of private channels created via create_dm_channel.
     ///
     /// The TTL for each value is configured in CacheSettings.
     #[cfg(feature = "temp_cache")]
-    pub(crate) temp_private_channels: MokaCache<UserId, MaybeOwnedArc<PrivateChannel>, BuildHasher>,
+    pub(crate) temp_private_channels: MokaCache<UserId, MaybeOwnedArc<PrivateChannel>>,
     /// Cache of messages that have been fetched via message.
     ///
     /// The TTL for each value is configured in CacheSettings.
     #[cfg(feature = "temp_cache")]
-    pub(crate) temp_messages: MokaCache<MessageId, MaybeOwnedArc<Message>, BuildHasher>,
+    pub(crate) temp_messages: MokaCache<MessageId, MaybeOwnedArc<Message>>,
     /// Cache of users who have been fetched from `to_user`.
     ///
     /// The TTL for each value is configured in CacheSettings.
     #[cfg(feature = "temp_cache")]
-    pub(crate) temp_users: MokaCache<UserId, MaybeOwnedArc<User>, BuildHasher>,
+    pub(crate) temp_users: MokaCache<UserId, MaybeOwnedArc<User>>,
 
     // Guilds cache:
     // ---
@@ -188,7 +185,7 @@ pub struct Cache {
 
     // Messages cache:
     // ---
-    messages: DashMap<GenericChannelId, VecDeque<Message>, BuildHasher>,
+    messages: HashMap<GenericChannelId, VecDeque<Message>>,
 
     // Miscellanous fixed-size data
     // ---
@@ -227,12 +224,14 @@ impl Cache {
     #[cfg_attr(feature = "tracing_instrument", instrument)]
     pub fn new_with_settings(settings: Settings) -> Self {
         #[cfg(feature = "temp_cache")]
-        fn temp_cache<K, V>(ttl: Duration) -> MokaCache<K, V, BuildHasher>
+        fn temp_cache<K, V>(ttl: Duration) -> MokaCache<K, V>
         where
-            K: Hash + Eq + Send + Sync + 'static,
+            K: std::hash::Hash + Eq + Send + Sync + 'static,
             V: Clone + Send + Sync + 'static,
         {
-            MokaCache::builder().time_to_live(ttl).build_with_hasher(BuildHasher::default())
+            mini_moka::sync::Cache::builder()
+                .time_to_live(ttl)
+                .build_with_hasher(Default::default())
         }
 
         Self {
@@ -767,7 +766,7 @@ mod test {
             channel: channel.clone(),
         };
         assert!(cache.update(&mut delete).is_some());
-        assert!(!cache.messages.contains_key(&delete.channel.id.into()));
+        assert!(!cache.messages.contains_key(&GenericChannelId::from(delete.channel.id)));
 
         // Test deletion of a guild channel's message cache when a GuildDeleteEvent is received.
         let mut guild_create = GuildCreateEvent {
