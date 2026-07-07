@@ -77,7 +77,7 @@ jobs:
       - name: Run tests
         env:
           RUSTFLAGS: -D warnings
-        run: cargo test --no-default-features --features "${{ matrix.features || 'full' }}"
+        run: cargo test --workspace --no-default-features --features "${{ matrix.features || 'full' }}"
 
   check:
     name: Check
@@ -197,7 +197,7 @@ jobs:
         env:
           RUSTDOCFLAGS: -D warnings
         run: |
-          cargo doc --no-deps --features full,unstable
+          cargo doc --workspace --no-deps --features full,unstable
 
   examples:
     name: Examples
