@@ -82,6 +82,9 @@
 extern crate serde;
 
 #[macro_use]
+extern crate serenity_utils;
+
+#[macro_use]
 mod internal;
 
 pub mod constants;
@@ -102,11 +105,12 @@ pub mod gateway;
 pub mod http;
 #[cfg(feature = "interactions_endpoint")]
 pub mod interactions_endpoint;
-pub mod secrets;
 #[cfg(feature = "utils")]
 pub mod utils;
 
 mod error;
+
+pub use serenity_utils::secrets;
 
 pub use crate::error::{Error, Result};
 #[cfg(feature = "gateway")]

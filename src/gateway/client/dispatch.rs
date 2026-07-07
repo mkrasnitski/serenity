@@ -1,12 +1,13 @@
 use std::sync::Arc;
 
+use serenity_utils::spawn_named;
+
 use super::Context;
 use super::event_handler::{EventHandler, RawEventHandler};
 #[cfg(feature = "framework")]
 use crate::framework::Framework;
 #[cfg(feature = "voice")]
 use crate::gateway::VoiceGatewayManager;
-use crate::internal::tokio::spawn_named;
 use crate::model::event::{Event, FullEvent};
 
 pub struct EventDispatcher {

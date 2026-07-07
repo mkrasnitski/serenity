@@ -5,17 +5,17 @@
 //!
 //! # Formatting
 //! ```
-//! # use serenity::model::id::GuildId;
-//! # use serenity::model::Timestamp;
+//! # use serenity_utils::Snowflake;
+//! # use serenity_utils::timestamp::Timestamp;
 //! #
-//! let timestamp: Timestamp = GuildId::new(175928847299117063).created_at();
+//! let timestamp = Timestamp::from_snowflake(Snowflake::new(175928847299117063));
 //! assert_eq!(timestamp.unix_timestamp(), 1462015105);
 //! assert_eq!(timestamp.to_string(), "2016-04-30T11:18:25.796Z");
 //! ```
 //!
 //! # Parsing RFC 3339 string
 //! ```
-//! # use serenity::model::Timestamp;
+//! # use serenity_utils::timestamp::Timestamp;
 //! #
 //! let timestamp = Timestamp::parse("2016-04-30T11:18:25Z").unwrap();
 //! let timestamp = Timestamp::parse("2016-04-30T11:18:25+00:00").unwrap();
@@ -28,6 +28,8 @@
 //! assert!(Timestamp::parse("2016-04-30T11:18:25").is_err());
 //! assert!(Timestamp::parse("2016-04-30T11:18").is_err());
 //! ```
+
+mod formatted_timestamp;
 
 use std::fmt;
 use std::str::FromStr;
@@ -42,7 +44,8 @@ pub use time::error::Parse as InnerError;
 #[cfg(not(feature = "chrono"))]
 use time::{Duration, OffsetDateTime, format_description::well_known::Rfc3339, serde::rfc3339};
 
-use crate::model::id::Snowflake;
+pub use self::formatted_timestamp::*;
+use crate::snowflake::Snowflake;
 
 /// Discord's epoch starts at "2015-01-01T00:00:00+00:00"
 const DISCORD_EPOCH: u64 = 1_420_070_400_000;
@@ -76,7 +79,9 @@ impl Timestamp {
         x.map(Self).ok_or(InvalidTimestamp)
     }
 
-    pub(crate) fn from_snowflake(id: Snowflake) -> Self {
+    /// Creates a new [`Timestamp`] from a Discord snowflake.
+    #[must_use]
+    pub fn from_snowflake(id: Snowflake) -> Self {
         // This can't fail because of the bit shifting
         // `(u64::MAX >> 22) + DISCORD_EPOCH` = 5818116911103 = "Wed May 15 2154 07:35:11 GMT+0000"
         Self::from_millis(((id.get() >> 22) + DISCORD_EPOCH) as i64).expect("can't fail")
@@ -126,7 +131,7 @@ impl Timestamp {
     ///
     /// # Examples
     /// ```
-    /// # use serenity::model::Timestamp;
+    /// # use serenity_utils::timestamp::Timestamp;
     /// #
     /// let timestamp = Timestamp::parse("2016-04-30T11:18:25Z").unwrap();
     /// let timestamp = Timestamp::parse("2016-04-30T11:18:25+00:00").unwrap();
@@ -158,9 +163,14 @@ impl Timestamp {
             .expect("as the OffsetDateTime is always parsed from rfc3339, this should never fail");
     }
 
-    pub(crate) fn try_as_snowflake(self) -> Result<Snowflake, TimestampOutOfRange> {
-        let unix_millis = TryInto::<u64>::try_into(self.unix_timestamp_millis())
-            .map_err(|_| TimestampOutOfRange)?;
+    /// Converts a timestamp into a Discord snowflake representing the same time.
+    ///
+    /// # Errors
+    ///
+    /// Returns `Err` if the timestamp is outside the range which Discord snowflakes can represent.
+    pub fn try_as_snowflake(self) -> Result<Snowflake, TimestampOutOfRange> {
+        let unix_millis: u64 =
+            self.unix_timestamp_millis().try_into().map_err(|_| TimestampOutOfRange)?;
         if !(DISCORD_EPOCH..=MAX_DISCORD_ID_MILLIS).contains(&unix_millis) {
             return Err(TimestampOutOfRange);
         }

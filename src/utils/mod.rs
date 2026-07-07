@@ -4,14 +4,13 @@
 #[cfg(feature = "cache")]
 mod content_safe;
 mod custom_message;
-mod formatted_timestamp;
 mod message_builder;
 
 use std::num::NonZeroU16;
 
 #[cfg(feature = "cache")]
 pub use content_safe::*;
-pub use formatted_timestamp::*;
+use serenity_utils::Snowflake;
 use url::Url;
 
 pub use self::custom_message::CustomMessage;

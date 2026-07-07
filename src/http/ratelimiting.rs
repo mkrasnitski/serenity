@@ -143,6 +143,7 @@ impl Ratelimiter {
     ///
     /// ```rust,no_run
     /// use serenity::http::Route;
+    /// # use serenity_utils::Snowflake;
     /// # use serenity::http::Http;
     /// # use serenity::model::prelude::*;
     ///

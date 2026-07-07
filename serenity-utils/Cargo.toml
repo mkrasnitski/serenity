@@ -1,0 +1,33 @@
+[package]
+name = "serenity-utils"
+version = "0.12.5"
+documentation.workspace = true
+homepage.workspace = true
+repository.workspace = true
+keywords.workspace = true
+license.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+# Workspace dependencies
+aformat = { workspace = true }
+bytes = { workspace = true }
+nonmax = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+to-arraystring = { workspace = true }
+tokio = { workspace = true }
+typesize = { workspace = true, optional = true }
+
+# Required dependencies
+time = { version = "0.3.47", features = ["formatting", "parsing", "serde-well-known"] }
+zeroize = { version = "1.8.2" } # Not used in serenity, but bumps the minimal version from secrecy
+
+# Optional dependencies
+chrono = { version = "0.4.42", default-features = false, features = ["clock", "serde"], optional = true }
+
+[features]
+chrono = ["dep:chrono", "typesize?/chrono"]
+tokio_task_builder = ["tokio/tracing"]
+typesize = ["dep:typesize"]

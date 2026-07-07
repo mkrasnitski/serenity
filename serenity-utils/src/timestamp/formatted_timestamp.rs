@@ -4,7 +4,7 @@ use std::str::FromStr;
 
 use aformat::{ArrayString, ToArrayString, aformat_into};
 
-use crate::model::Timestamp;
+use super::Timestamp;
 
 /// Represents a combination of a timestamp and a style for formatting time in messages.
 ///

@@ -16,6 +16,8 @@ use reqwest::{Client, ClientBuilder, Response as ReqwestResponse, StatusCode};
 use serde::de::DeserializeOwned;
 use serde::ser::{Serialize, SerializeSeq as _, Serializer};
 use serde_json::{from_value, to_string, to_vec};
+use serenity_utils::timestamp::Timestamp;
+use serenity_utils::{AttachmentData, Snowflake};
 use to_arraystring::ToArrayString as _;
 #[cfg(feature = "tracing_instrument")]
 use tracing::instrument;
@@ -26,7 +28,7 @@ use super::ratelimiting::Ratelimiter;
 use super::request::Request;
 use super::routing::Route;
 use super::{ErrorResponse, HttpError, LightMethod, MessagePagination, Pagination};
-use crate::builder::{AttachmentData, CreateAllowedMentions};
+use crate::builder::CreateAllowedMentions;
 use crate::constants;
 use crate::model::prelude::*;
 

@@ -1,9 +1,9 @@
 use std::borrow::Cow;
 
 use reqwest::multipart::{Form, Part};
+use serenity_utils::{AttachmentData, AttachmentDataKind};
 use tokio::fs::File;
 
-use crate::builder::{AttachmentData, AttachmentDataKind};
 use crate::internal::prelude::*;
 
 async fn create_part(attachment: AttachmentData<'_>) -> Result<Part> {

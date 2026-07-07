@@ -28,6 +28,7 @@ mod routing;
 
 use reqwest::Method;
 pub use reqwest::StatusCode;
+use serenity_utils::Snowflake;
 
 pub use self::client::*;
 pub use self::error::*;
@@ -35,7 +36,6 @@ pub use self::multipart::*;
 pub use self::ratelimiting::*;
 pub use self::request::*;
 pub use self::routing::*;
-use crate::model::id::*;
 
 /// An method used for ratelimiting special routes.
 ///

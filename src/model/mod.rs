@@ -38,7 +38,6 @@ pub mod monetization;
 pub mod permissions;
 pub mod soundboard;
 pub mod sticker;
-pub mod timestamp;
 #[cfg(feature = "model")]
 pub mod typing;
 pub mod user;
@@ -48,10 +47,11 @@ pub mod webhook;
 #[cfg(feature = "http")]
 use std::sync::Arc;
 
+pub use serenity_utils::timestamp::Timestamp;
+
 pub use self::colour::{Color, Colour};
 pub use self::error::Error as ModelError;
 pub use self::permissions::Permissions;
-pub use self::timestamp::Timestamp;
 #[cfg(all(feature = "http", feature = "cache"))]
 use crate::cache::Cache;
 #[cfg(feature = "http")]

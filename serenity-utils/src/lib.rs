@@ -1,4 +1,32 @@
-#[cfg(feature = "http")]
+#[macro_use]
+extern crate serde;
+
+mod macros;
+pub mod secrets;
+mod snowflake;
+pub mod timestamp;
+
+use std::borrow::Cow;
+use std::path::Path;
+
+use bytes::Bytes;
+use tokio::fs::File;
+
+pub use self::snowflake::*;
+
+#[derive(Clone, Debug)]
+pub struct AttachmentData<'a> {
+    pub filename: Cow<'static, str>,
+    pub kind: AttachmentDataKind<'a>,
+}
+
+#[derive(Clone, Debug)]
+pub enum AttachmentDataKind<'a> {
+    Bytes(Bytes),
+    File(&'a File),
+    Path(&'a Path),
+}
+
 pub fn spawn_named<F, T>(_name: &str, future: F) -> tokio::task::JoinHandle<T>
 where
     F: Future<Output = T> + Send + 'static,

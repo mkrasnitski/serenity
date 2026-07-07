@@ -2,14 +2,14 @@
 use std::sync::Arc;
 
 #[cfg(feature = "model")]
+use serenity_utils::spawn_named;
+#[cfg(feature = "model")]
 use tokio::sync::oneshot;
 
 #[cfg(feature = "model")]
 use crate::http::Http;
 #[cfg(feature = "model")]
 use crate::internal::prelude::*;
-#[cfg(feature = "model")]
-use crate::internal::tokio::spawn_named;
 #[cfg(feature = "model")]
 use crate::model::id::GenericChannelId;
 

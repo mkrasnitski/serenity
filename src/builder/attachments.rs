@@ -5,25 +5,13 @@ use bytes::Bytes;
 #[cfg(feature = "http")]
 use reqwest::{Client as ReqwestClient, IntoUrl};
 use serde::ser::{Serialize, SerializeSeq, Serializer};
+use serenity_utils::{AttachmentData, AttachmentDataKind};
 use tokio::fs::File;
 use tokio::io::AsyncReadExt;
 
 use crate::error::{Error, Result, UrlError};
 use crate::model::channel::Message;
 use crate::model::id::AttachmentId;
-
-#[derive(Clone, Debug)]
-pub struct AttachmentData<'a> {
-    pub filename: Cow<'static, str>,
-    pub kind: AttachmentDataKind<'a>,
-}
-
-#[derive(Clone, Debug)]
-pub enum AttachmentDataKind<'a> {
-    Bytes(Bytes),
-    File(&'a File),
-    Path(&'a Path),
-}
 
 /// A builder for creating a new attachment from a file path, file data, or URL.
 ///

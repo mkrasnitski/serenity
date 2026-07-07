@@ -8,6 +8,7 @@ use dashmap::DashMap;
 use futures::StreamExt;
 use futures::channel::mpsc::{self, UnboundedReceiver as Receiver, UnboundedSender as Sender};
 use parking_lot::RwLock;
+use serenity_utils::spawn_named;
 use tokio::time::{sleep, timeout};
 #[cfg(feature = "tracing_instrument")]
 use tracing::instrument;
@@ -33,7 +34,6 @@ use crate::gateway::client::{Context, EventHandler, RawEventHandler};
 use crate::gateway::{GatewayError, PresenceData, TransportCompression};
 use crate::http::Http;
 use crate::internal::prelude::*;
-use crate::internal::tokio::spawn_named;
 use crate::model::gateway::{ConnectionStage, GatewayIntents};
 
 /// The default time to wait between starting each shard or set of shards.

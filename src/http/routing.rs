@@ -1,6 +1,6 @@
 use std::borrow::Cow;
 
-use crate::model::id::Snowflake;
+use serenity_utils::Snowflake;
 
 /// Used to group requests together for ratelimiting.
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
