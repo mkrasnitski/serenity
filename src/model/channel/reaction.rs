@@ -97,7 +97,7 @@ impl Reaction {
     ///
     /// # Errors
     ///
-    /// Returns [`Error::Http`] if the current user lacks permission, or if the channel no longer
+    /// Returns [`Error::Request`] if the current user lacks permission, or if the channel no longer
     /// exists.
     ///
     /// [Read Message History]: Permissions::READ_MESSAGE_HISTORY
@@ -113,7 +113,7 @@ impl Reaction {
     ///
     /// # Errors
     ///
-    /// Returns [`Error::Http`] if the current user lacks the required [permissions].
+    /// Returns [`Error::Request`] if the current user lacks the required [permissions].
     ///
     /// [Manage Messages]: Permissions::MANAGE_MESSAGES
     /// [permissions]: crate::model::permissions
@@ -129,7 +129,7 @@ impl Reaction {
     ///
     /// # Errors
     ///
-    /// Returns [`Error::Http`] if the current user lacks [permissions].
+    /// Returns [`Error::Request`] if the current user lacks [permissions].
     ///
     /// [Manage Messages]: Permissions::MANAGE_MESSAGES
     /// [permissions]: crate::model::permissions
@@ -149,8 +149,8 @@ impl Reaction {
     ///
     /// # Errors
     ///
-    /// Returns [`Error::Http`] if the current user lacks permission to read message history, or if
-    /// the message was deleted.
+    /// Returns [`Error::Request`] if the current user lacks permission to read message history, or
+    /// if the message was deleted.
     ///
     /// [Read Message History]: Permissions::READ_MESSAGE_HISTORY
     pub async fn message(&self, cache_http: impl CacheHttp) -> Result<Message> {
@@ -164,7 +164,7 @@ impl Reaction {
     ///
     /// # Errors
     ///
-    /// Returns [`Error::Http`] if the user who made the reaction is unable to be retrieved from
+    /// Returns [`Error::Request`] if the user who made the reaction is unable to be retrieved from
     /// the API.
     pub async fn user(&self, cache_http: impl CacheHttp) -> Result<User> {
         if let Some(id) = self.user_id {
@@ -198,7 +198,7 @@ impl Reaction {
     ///
     /// # Errors
     ///
-    /// Returns [`Error::Http`] if the current user lacks the required [permissions].
+    /// Returns [`Error::Request`] if the current user lacks the required [permissions].
     ///
     /// [Read Message History]: Permissions::READ_MESSAGE_HISTORY
     /// [permissions]: crate::model::permissions

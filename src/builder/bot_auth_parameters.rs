@@ -80,10 +80,10 @@ impl<'a> CreateBotAuthParameters<'a> {
     ///
     /// # Errors
     ///
-    /// Returns an [`HttpError::UnsuccessfulRequest`] if the user is not authorized for this
+    /// Returns a [`RequestError::UnsuccessfulRequest`] if the user is not authorized for this
     /// endpoint.
     ///
-    /// [`HttpError::UnsuccessfulRequest`]: crate::http::HttpError::UnsuccessfulRequest
+    /// [`RequestError::UnsuccessfulRequest`]: crate::http::RequestError::UnsuccessfulRequest
     #[cfg(feature = "http")]
     pub async fn auto_client_id(mut self, http: &Http) -> Result<Self> {
         let info: CurrentApplicationInfo = http.get_current_application_info().await?;

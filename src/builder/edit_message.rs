@@ -219,7 +219,8 @@ impl<'a> EditMessage<'a> {
     ///
     /// Returns a [`ModelError::TooLarge`] if the message contents are over the above limits.
     ///
-    /// Returns [`Error::Http`] if the user lacks permission, as well as if invalid data is given.
+    /// Returns [`Error::Request`] if the user lacks permission, as well as if invalid data is
+    /// given.
     ///
     /// [Manage Messages]: Permissions::MANAGE_MESSAGES
     /// [`From<Embed>`]: CreateEmbed#impl-From<Embed>

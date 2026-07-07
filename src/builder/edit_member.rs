@@ -138,7 +138,8 @@ impl<'a> EditMember<'a> {
     ///
     /// # Errors
     ///
-    /// Returns [`Error::Http`] if the current user lacks permission, or if invalid data is given.
+    /// Returns [`Error::Request`] if the current user lacks permission, or if invalid data is
+    /// given.
     #[cfg(feature = "http")]
     pub async fn execute(self, http: &Http, guild_id: GuildId, user_id: UserId) -> Result<Member> {
         http.edit_member(guild_id.0, user_id.0, &self, self.audit_log_reason)

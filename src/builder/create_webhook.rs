@@ -55,7 +55,7 @@ impl<'a> CreateWebhook<'a> {
     /// If the provided name is less than 2 characters, returns [`ModelError::TooSmall`]. If it
     /// is more than 100 characters, returns [`ModelError::TooLarge`].
     ///
-    /// Returns a [`Error::Http`] if the current user lacks permission, or if invalid data is
+    /// Returns a [`Error::Request`] if the current user lacks permission, or if invalid data is
     /// given.
     ///
     /// [`Text`]: ChannelType::Text

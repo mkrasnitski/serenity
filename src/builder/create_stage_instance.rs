@@ -55,7 +55,7 @@ impl<'a> CreateStageInstance<'a> {
     ///
     /// # Errors
     ///
-    /// Returns [`Error::Http`] if there is already a stage instance currently.
+    /// Returns [`Error::Request`] if there is already a stage instance currently.
     #[cfg(feature = "http")]
     pub async fn execute(mut self, http: &Http, channel_id: ChannelId) -> Result<StageInstance> {
         self.channel_id = Some(channel_id);

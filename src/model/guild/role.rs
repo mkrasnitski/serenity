@@ -96,7 +96,7 @@ impl Role {
     ///
     /// # Errors
     ///
-    /// Returns [`Error::Http`] if the current user lacks permission to delete this role.
+    /// Returns [`Error::Request`] if the current user lacks permission to delete this role.
     ///
     /// [Manage Roles]: Permissions::MANAGE_ROLES
     pub async fn delete(&mut self, http: &Http, reason: Option<&str>) -> Result<()> {
@@ -113,7 +113,7 @@ impl Role {
     ///
     /// # Errors
     ///
-    /// Returns [`Error::Http`] if the current user does not have permission to Manage Roles.
+    /// Returns [`Error::Request`] if the current user does not have permission to Manage Roles.
     ///
     /// [Manage Roles]: Permissions::MANAGE_ROLES
     pub async fn edit(&mut self, http: &Http, builder: EditRole<'_>) -> Result<()> {

@@ -105,7 +105,7 @@ impl<'a> EditThread<'a> {
     ///
     /// # Errors
     ///
-    /// Returns [`Error::Http`] if the current user lacks permission.
+    /// Returns [`Error::Request`] if the current user lacks permission.
     /// Returns [`ModelError::InvalidChannelType`] if the `ThreadId` is not identifying a thread.
     #[cfg(feature = "http")]
     pub async fn execute(self, http: &Http, thread_id: ThreadId) -> Result<GuildThread> {

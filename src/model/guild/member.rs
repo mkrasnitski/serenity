@@ -114,7 +114,7 @@ impl Member {
     ///
     /// # Errors
     ///
-    /// Returns [`Error::Http`] if the current user lacks permission, or if a role with the given
+    /// Returns [`Error::Request`] if the current user lacks permission, or if a role with the given
     /// Id does not exist.
     ///
     /// [Manage Roles]: Permissions::MANAGE_ROLES
@@ -130,8 +130,8 @@ impl Member {
     ///
     /// # Errors
     ///
-    /// Returns [`Error::Http`] if the current user lacks permission, or if a role with a given Id
-    /// does not exist.
+    /// Returns [`Error::Request`] if the current user lacks permission, or if a role with a given
+    /// Id does not exist.
     ///
     /// [Manage Roles]: Permissions::MANAGE_ROLES
     pub async fn add_roles(
@@ -154,7 +154,7 @@ impl Member {
     ///
     /// # Errors
     ///
-    /// Can return [`Error::Http`] if the current user lacks permission to ban this member.
+    /// Can return [`Error::Request`] if the current user lacks permission to ban this member.
     ///
     /// [Ban Members]: Permissions::BAN_MEMBERS
     pub async fn ban(&self, http: &Http, dms: u32, audit_log_reason: Option<&str>) -> Result<()> {
@@ -206,7 +206,7 @@ impl Member {
     ///
     /// # Errors
     ///
-    /// Returns [`Error::Http`] if the current user lacks permission or if `time` is greater than
+    /// Returns [`Error::Request`] if the current user lacks permission or if `time` is greater than
     /// 28 days from the current time.
     ///
     /// [Moderate Members]: Permissions::MODERATE_MEMBERS
@@ -256,7 +256,7 @@ impl Member {
     ///
     /// # Errors
     ///
-    /// Returns [`Error::Http`] if the current user lacks necessary permissions.
+    /// Returns [`Error::Request`] if the current user lacks necessary permissions.
     pub async fn edit(&mut self, http: &Http, builder: EditMember<'_>) -> Result<()> {
         *self = self.guild_id.edit_member(http, self.user.id, builder).await?;
         Ok(())
@@ -268,7 +268,7 @@ impl Member {
     ///
     /// # Errors
     ///
-    /// Returns [`Error::Http`] if the current user lacks permission.
+    /// Returns [`Error::Request`] if the current user lacks permission.
     ///
     /// [Moderate Members]: Permissions::MODERATE_MEMBERS
     #[doc(alias = "timeout")]
@@ -303,7 +303,7 @@ impl Member {
     /// Returns a [`ModelError::GuildNotFound`] if the Id of the member's guild could not be
     /// determined.
     ///
-    /// Returns [`Error::Http`] if the current user lacks permission.
+    /// Returns [`Error::Request`] if the current user lacks permission.
     ///
     /// [Kick Members]: Permissions::KICK_MEMBERS
     pub async fn kick(&self, http: &Http, reason: Option<&str>) -> Result<()> {
@@ -316,7 +316,7 @@ impl Member {
     ///
     /// # Errors
     ///
-    /// Returns [`Error::Http`] if the member is not currently in a voice channel, or if the
+    /// Returns [`Error::Request`] if the member is not currently in a voice channel, or if the
     /// current user lacks permission.
     ///
     /// [Move Members]: Permissions::MOVE_MEMBERS
@@ -330,7 +330,7 @@ impl Member {
     ///
     /// # Errors
     ///
-    /// Returns [`Error::Http`] if the member is not currently in a voice channel, or if the
+    /// Returns [`Error::Request`] if the member is not currently in a voice channel, or if the
     /// current user lacks permission.
     ///
     /// [Move Members]: Permissions::MOVE_MEMBERS
@@ -344,8 +344,8 @@ impl Member {
     ///
     /// # Errors
     ///
-    /// Returns [`Error::Http`] if a role with the given Id does not exist, or if the current user
-    /// lacks permission.
+    /// Returns [`Error::Request`] if a role with the given Id does not exist, or if the current
+    /// user lacks permission.
     ///
     /// [Manage Roles]: Permissions::MANAGE_ROLES
     pub async fn remove_role(
@@ -365,7 +365,7 @@ impl Member {
     ///
     /// # Errors
     ///
-    /// Returns [`Error::Http`] if a role with a given Id does not exist, or if the current user
+    /// Returns [`Error::Request`] if a role with a given Id does not exist, or if the current user
     /// lacks permission.
     ///
     /// [Manage Roles]: Permissions::MANAGE_ROLES
@@ -406,7 +406,7 @@ impl Member {
     ///
     /// # Errors
     ///
-    /// Returns [`Error::Http`] if the current user does not have permission to perform bans.
+    /// Returns [`Error::Request`] if the current user does not have permission to perform bans.
     ///
     /// [Ban Members]: Permissions::BAN_MEMBERS
     pub async fn unban(&self, http: &Http, reason: Option<&str>) -> Result<()> {

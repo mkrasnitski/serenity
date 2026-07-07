@@ -316,7 +316,7 @@ impl<'a> EditChannel<'a> {
     ///
     /// # Errors
     ///
-    /// Returns [`Error::Http`] if the current user lacks permission or if invalid data is given.
+    /// Returns [`Error::Request`] if the current user lacks permission or if invalid data is given.
     ///
     /// [Manage Channels]: Permissions::MANAGE_CHANNELS
     /// [Manage Roles]: Permissions::MANAGE_ROLES

@@ -314,7 +314,7 @@ impl<'a> EditGuild<'a> {
     ///
     /// # Errors
     ///
-    /// Returns [`Error::Http`] if the current user lacks permission or if invalid data is given.
+    /// Returns [`Error::Request`] if the current user lacks permission or if invalid data is given.
     ///
     /// [Manage Guild]: Permissions::MANAGE_GUILD
     #[cfg(feature = "http")]

@@ -173,7 +173,7 @@ impl CurrentUser {
     ///
     /// # Errors
     ///
-    /// Returns an [`Error::Http`] if an invalid value is set. May also return an [`Error::Json`]
+    /// Returns an [`Error::Request`] if an invalid value is set. May also return an [`Error::Json`]
     /// if there is an error in deserializing the API response.
     pub async fn edit(&mut self, http: &Http, builder: EditProfile<'_>) -> Result<()> {
         *self = builder.execute(http).await?;
@@ -561,8 +561,8 @@ impl User {
     ///
     /// # Errors
     ///
-    /// Returns an [`Error::Http`] if the given [`Guild`] is unavailable, if that [`Role`] does not
-    /// exist in the given [`Guild`], or if the given [`User`] is not in that [`Guild`].
+    /// Returns an [`Error::Request`] if the given [`Guild`] is unavailable, if that [`Role`] does
+    /// not exist in the given [`Guild`], or if the given [`User`] is not in that [`Guild`].
     ///
     /// May also return an [`Error::Json`] if there is an error in deserializing the API response.
     pub async fn has_role(
@@ -665,8 +665,8 @@ impl UserId {
     ///
     /// # Errors
     ///
-    /// Returns [`Error::Http`] if a [`User`] with that [`UserId`] does not exist, or is otherwise
-    /// unavailable.
+    /// Returns [`Error::Request`] if a [`User`] with that [`UserId`] does not exist, or is
+    /// otherwise unavailable.
     ///
     /// May also return an [`Error::Json`] if there is an error in deserializing the channel data
     /// returned by the Discord API.
@@ -736,7 +736,7 @@ impl UserId {
     ///
     /// Returns a [`ModelError::MessagingBot`] if the user being direct messaged is a bot user.
     ///
-    /// May also return an [`Error::Http`] if the user cannot be sent a direct message.
+    /// May also return an [`Error::Request`] if the user cannot be sent a direct message.
     ///
     /// Returns an [`Error::Json`] if there is an error deserializing the API response.
     pub async fn direct_message(
@@ -761,7 +761,7 @@ impl UserId {
     ///
     /// # Errors
     ///
-    /// May return an [`Error::Http`] if a [`User`] with that [`UserId`] does not exist, or
+    /// May return an [`Error::Request`] if a [`User`] with that [`UserId`] does not exist, or
     /// otherwise cannot be fetched.
     ///
     /// May also return an [`Error::Json`] if there is an error in deserializing the user.

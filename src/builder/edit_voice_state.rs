@@ -66,7 +66,7 @@ impl EditVoiceState {
     ///
     /// # Errors
     ///
-    /// Returns [`Error::Http`] if the user lacks permission, or if invalid data is given.
+    /// Returns [`Error::Request`] if the user lacks permission, or if invalid data is given.
     ///
     /// [Request to Speak]: Permissions::REQUEST_TO_SPEAK
     /// [Mute Members]: Permissions::MUTE_MEMBERS

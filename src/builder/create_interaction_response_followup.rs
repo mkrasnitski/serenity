@@ -168,8 +168,8 @@ impl<'a> CreateInteractionResponseFollowup<'a> {
     ///
     /// # Errors
     ///
-    /// Returns [`Error::Model`] if the content is too long. May also return [`Error::Http`] if the
-    /// API returns an error, or [`Error::Json`] if there is an error in deserializing the
+    /// Returns [`Error::Model`] if the content is too long. May also return [`Error::Request`] if
+    /// the API returns an error, or [`Error::Json`] if there is an error in deserializing the
     /// response.
     #[cfg(feature = "http")]
     pub async fn execute(

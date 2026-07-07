@@ -71,7 +71,8 @@ impl<'a> EditSticker<'a> {
     ///
     /// # Errors
     ///
-    /// Returns [`Error::Http`] if the current user lacks permission, or if invalid data is given.
+    /// Returns [`Error::Request`] if the current user lacks permission, or if invalid data is
+    /// given.
     ///
     /// [Create Guild Expressions]: Permissions::CREATE_GUILD_EXPRESSIONS
     /// [Manage Guild Expressions]: Permissions::MANAGE_GUILD_EXPRESSIONS

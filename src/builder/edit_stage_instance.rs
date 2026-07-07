@@ -47,7 +47,7 @@ impl<'a> EditStageInstance<'a> {
     ///
     /// # Errors
     ///
-    /// Returns [`Error::Http`] if the channel is not a stage channel, or there is no stage
+    /// Returns [`Error::Request`] if the channel is not a stage channel, or there is no stage
     /// instance currently.
     #[cfg(feature = "http")]
     pub async fn execute(self, http: &Http, channel_id: ChannelId) -> Result<StageInstance> {

@@ -328,7 +328,7 @@ impl Guild {
     ///
     /// # Errors
     ///
-    /// Returns [`Error::Http`] if the current user cannot create a Guild.
+    /// Returns [`Error::Request`] if the current user cannot create a Guild.
     ///
     /// [`Shard`]: crate::gateway::Shard
     #[deprecated = "This endpoint has been deprecated by Discord and will stop functioning after July 15, 2025. For more information, see: https://docs.discord.com/developers/change-log#deprecating-guild-creation-by-apps"]
@@ -358,7 +358,7 @@ impl Guild {
     /// If the `cache` is enabled, then returns a [`ModelError::InvalidUser`] if the current user
     /// is not the guild owner.
     ///
-    /// Otherwise returns [`Error::Http`] if the current user is not the owner of the guild.
+    /// Otherwise returns [`Error::Request`] if the current user is not the owner of the guild.
     pub async fn delete(&self, cache_http: impl CacheHttp) -> Result<()> {
         #[cfg(feature = "cache")]
         {
@@ -398,7 +398,7 @@ impl Guild {
     ///
     /// # Errors
     ///
-    /// Returns [`Error::Http`] if the current user lacks permission or if invalid data is given.
+    /// Returns [`Error::Request`] if the current user lacks permission or if invalid data is given.
     ///
     /// [Manage Guild]: Permissions::MANAGE_GUILD
     pub async fn edit(&mut self, http: &Http, builder: EditGuild<'_>) -> Result<()> {
@@ -426,7 +426,7 @@ impl Guild {
     ///
     /// # Errors
     ///
-    /// Returns an [`Error::Http`] if the current user is not in the guild.
+    /// Returns an [`Error::Request`] if the current user is not in the guild.
     pub async fn get(cache_http: impl CacheHttp, guild_id: GuildId) -> Result<PartialGuild> {
         guild_id.to_partial_guild(cache_http).await
     }
@@ -559,7 +559,7 @@ impl Guild {
     ///
     /// # Errors
     ///
-    /// Returns an [`Error::Http`] if the user is not in the guild or if the guild is otherwise
+    /// Returns an [`Error::Request`] if the user is not in the guild or if the guild is otherwise
     /// unavailable.
     pub async fn member(&self, http: &Http, user_id: UserId) -> Result<Cow<'_, Member>> {
         if let Some(member) = self.members.get(&user_id) {

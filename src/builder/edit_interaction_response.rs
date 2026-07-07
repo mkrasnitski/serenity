@@ -118,8 +118,8 @@ impl<'a> EditInteractionResponse<'a> {
     /// # Errors
     ///
     /// Returns an [`Error::Model`] if the message content is too long. May also return an
-    /// [`Error::Http`] if the API returns an error, or an [`Error::Json`] if there is an error in
-    /// deserializing the API response.
+    /// [`Error::Request`] if the API returns an error, or an [`Error::Json`] if there is an error
+    /// in deserializing the API response.
     #[cfg(feature = "http")]
     pub async fn execute(self, http: &Http, interaction_token: &str) -> Result<Message> {
         self.0.check_length()?;

@@ -168,7 +168,8 @@ impl<'a> EditScheduledEvent<'a> {
     ///
     /// # Errors
     ///
-    /// Returns [`Error::Http`] if the current user lacks permission, or if invalid data is given.
+    /// Returns [`Error::Request`] if the current user lacks permission, or if invalid data is
+    /// given.
     ///
     /// [Create Events]: Permissions::CREATE_EVENTS
     /// [Manage Events]: Permissions::MANAGE_EVENTS

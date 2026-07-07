@@ -223,9 +223,6 @@ fn reason_into_header(reason: &str) -> Headers {
 }
 
 /// A low-level client for sending requests to Discord's HTTP REST API.
-///
-/// **Note**: For all member functions that return a [`Result`], the Error kind will be either
-/// [`Error::Http`] or [`Error::Json`].
 #[derive(Debug)]
 pub struct Http {
     pub ratelimiter: Option<Ratelimiter>,
@@ -265,9 +262,9 @@ impl Http {
         self.application_id.store(application_id.get(), Ordering::Release);
     }
 
-    /// Adds a [`User`] to a [`Guild`] with a valid OAuth2 access token.
+    /// Adds a user to a guild with a valid OAuth2 access token.
     ///
-    /// Returns the created [`Member`] object, or nothing if the user is already a guild member.
+    /// Returns the created member object, or nothing if the user is already a guild member.
     pub async fn add_guild_member<T: DeserializeOwned>(
         &self,
         guild_id: Snowflake,
@@ -291,7 +288,7 @@ impl Http {
         if response.status() == 204 { Ok(None) } else { Ok(Some(response.json().await?)) }
     }
 
-    /// Adds a single [`Role`] to a [`Member`] in a [`Guild`].
+    /// Adds a single role to a member in a guild.
     pub async fn add_member_role(
         &self,
         guild_id: Snowflake,
@@ -314,7 +311,7 @@ impl Http {
         .await
     }
 
-    /// Bans a [`User`] from a [`Guild`], removing their messages sent in the last X number of
+    /// Bans a user from a guild, removing their messages sent in the last X number of
     /// seconds.
     ///
     /// Passing a `delete_message_seconds` of `0` is equivalent to not removing any messages. Up to
@@ -340,7 +337,7 @@ impl Http {
         .await
     }
 
-    /// Bans multiple users from a [`Guild`], optionally removing their messages.
+    /// Bans multiple users from a guild, optionally removing their messages.
     ///
     /// See the [Discord docs](https://docs.discord.com/developers/resources/guild#bulk-guild-ban)
     /// for more information.
@@ -363,7 +360,7 @@ impl Http {
         .await
     }
 
-    /// Broadcasts that the current user is typing in the given [`Channel`].
+    /// Broadcasts that the current user is typing in the given channel.
     pub async fn broadcast_typing(&self, channel_id: Snowflake) -> Result<()> {
         self.wind(Request {
             body: None,
@@ -378,7 +375,7 @@ impl Http {
         .await
     }
 
-    /// Creates a [`GuildChannel`] in the [`Guild`] given its Id.
+    /// Creates a channel in the guild given its Id.
     pub async fn create_channel<T: DeserializeOwned>(
         &self,
         guild_id: Snowflake,
@@ -415,7 +412,7 @@ impl Http {
         .await
     }
 
-    /// Creates a thread channel in the [`GuildChannel`] given its Id, with a base message Id.
+    /// Creates a thread attached to a message in the channel given its Id.
     pub async fn create_thread_from_message<T: DeserializeOwned>(
         &self,
         channel_id: Snowflake,
@@ -437,7 +434,7 @@ impl Http {
         .await
     }
 
-    /// Creates a thread channel not attached to a message in the [`GuildChannel`] given its Id.
+    /// Creates a thread not attached to a message in the channel given its Id.
     pub async fn create_thread<T: DeserializeOwned>(
         &self,
         channel_id: Snowflake,
@@ -457,7 +454,7 @@ impl Http {
         .await
     }
 
-    /// Creates a forum post channel in the [`GuildChannel`] given its Id.
+    /// Creates a forum post channel in the guild channel given its Id.
     pub async fn create_forum_post<T: DeserializeOwned>(
         &self,
         channel_id: Snowflake,
@@ -482,7 +479,7 @@ impl Http {
         .await
     }
 
-    /// Creates an emoji in the given [`Guild`] with the given data.
+    /// Creates an emoji in the given guild with the given data.
     pub async fn create_emoji<T: DeserializeOwned>(
         &self,
         guild_id: Snowflake,
@@ -503,10 +500,6 @@ impl Http {
     }
 
     /// Creates an application emoji with the given data.
-    ///
-    /// See [`Context::create_application_emoji`] for required fields.
-    ///
-    /// [`Context::create_application_emoji`]: crate::gateway::client::Context::create_application_emoji
     pub async fn create_application_emoji<T: DeserializeOwned>(
         &self,
         map: &impl Serialize,
@@ -616,10 +609,8 @@ impl Http {
 
     /// Creates a guild with the data provided.
     ///
-    /// Only a [`PartialGuild`] will be immediately returned, and a full [`Guild`] will be received
-    /// over a [`Shard`], if at least one is running.
-    ///
-    /// [`Shard`]: crate::gateway::Shard
+    /// Only a partial guild will be immediately returned, and a full guild will later be
+    /// sent over the gateway if at least one shard is running.
     #[deprecated = "This endpoint has been deprecated by Discord and will stop functioning after July 15, 2025. For more information, see: https://docs.discord.com/developers/change-log#deprecating-guild-creation-by-apps"]
     pub async fn create_guild<T: DeserializeOwned>(&self, map: &impl Serialize) -> Result<T> {
         self.fire(Request {
@@ -655,7 +646,7 @@ impl Http {
         .await
     }
 
-    /// Creates an [`Integration`] for a [`Guild`].
+    /// Creates an integration for a guild.
     pub async fn create_guild_integration(
         &self,
         guild_id: Snowflake,
@@ -677,7 +668,7 @@ impl Http {
         .await
     }
 
-    /// Creates a response to an [`Interaction`] from the gateway.
+    /// Creates a response to an interaction from the gateway.
     pub async fn create_interaction_response(
         &self,
         interaction_id: Snowflake,
@@ -710,7 +701,7 @@ impl Http {
         self.wind(request).await
     }
 
-    /// Creates an [`Invite`] for the given [channel][`GuildChannel`].
+    /// Creates an invite for the given channel.
     pub async fn create_invite<T: DeserializeOwned>(
         &self,
         channel_id: Snowflake,
@@ -882,7 +873,7 @@ impl Http {
         .await
     }
 
-    /// Creates a webhook for the given [`GuildChannel`]'s Id, passing in the given data.
+    /// Creates a webhook for the given channel's Id, passing in the given data.
     pub async fn create_webhook<T: DeserializeOwned>(
         &self,
         channel_id: Snowflake,
@@ -1131,7 +1122,7 @@ impl Http {
         .await
     }
 
-    /// Deletes all of the [`Reaction`]s associated with a [`Message`].
+    /// Deletes all of the reactions associated with a message.
     pub async fn delete_message_reactions(
         &self,
         channel_id: Snowflake,
@@ -1338,7 +1329,7 @@ impl Http {
         .await
     }
 
-    /// Deletes a [`Webhook`] given its Id.
+    /// Deletes a webhook given its Id.
     pub async fn delete_webhook(
         &self,
         webhook_id: Snowflake,
@@ -1357,7 +1348,7 @@ impl Http {
         .await
     }
 
-    /// Deletes a [`Webhook`] given its Id and unique token.
+    /// Deletes a webhook given its Id and unique token.
     ///
     /// This method does _not_ require authentication.
     pub async fn delete_webhook_with_token(
@@ -1443,10 +1434,6 @@ impl Http {
     }
 
     /// Changes application emoji information.
-    ///
-    /// See [`Context::edit_application_emoji`] for required fields.
-    ///
-    /// [`Context::edit_application_emoji`]: crate::gateway::client::Context::edit_application_emoji
     pub async fn edit_application_emoji<T: DeserializeOwned>(
         &self,
         emoji_id: Snowflake,
@@ -1652,7 +1639,7 @@ impl Http {
         from_value(resp).map_err(From::from)
     }
 
-    /// Edits a [`Guild`]'s widget.
+    /// Edits a guild's widget.
     pub async fn edit_guild_widget<T: DeserializeOwned>(
         &self,
         guild_id: Snowflake,
@@ -1778,7 +1765,7 @@ impl Http {
         .await
     }
 
-    /// Edits the current member for the provided [`Guild`] via its Id.
+    /// Edits the current member for the provided guild via its Id.
     pub async fn edit_current_member<T: DeserializeOwned>(
         &self,
         guild_id: Snowflake,
@@ -1944,10 +1931,6 @@ impl Http {
     }
 
     /// Modifies a scheduled event.
-    ///
-    /// **Note**: Requires the [Manage Events] permission.
-    ///
-    /// [Manage Events]: Permissions::MANAGE_EVENTS
     pub async fn edit_scheduled_event<T: DeserializeOwned>(
         &self,
         guild_id: Snowflake,
@@ -1970,8 +1953,6 @@ impl Http {
     }
 
     /// Changes a sticker in a guild.
-    ///
-    /// See [`GuildId::edit_sticker`] for permissions requirements.
     pub async fn edit_sticker<T: DeserializeOwned>(
         &self,
         guild_id: Snowflake,
@@ -2102,7 +2083,7 @@ impl Http {
         .await
     }
 
-    /// Executes a webhook, posting a [`Message`] in the webhook's associated [`Channel`].
+    /// Executes a webhook, posting a message in the webhook's associated channel.
     pub async fn execute_webhook<T: DeserializeOwned>(
         &self,
         webhook_id: Snowflake,
@@ -2322,7 +2303,7 @@ impl Http {
     /// returned.
     ///
     /// If `target` is set, then users will be filtered by Id, such that their Id comes before or
-    /// after the provided [`UserId`] wrapped by the [`UserPagination`].
+    /// after the provided user id.
     pub async fn get_bans<T: DeserializeOwned>(
         &self,
         guild_id: Snowflake,
@@ -2361,16 +2342,8 @@ impl Http {
         .await
     }
 
-    /// Gets a [`Ban`] for a specific user in a guild. Returns [`None`] if no ban was found
-    /// matching both the [`GuildId`] and [`UserId`].
-    ///
-    /// **Note**: Requires that you have the [Ban Members] permission
-    ///
-    /// # Errors
-    ///
-    /// Returns [`Error::Http`] if the current user lacks permission.
-    ///
-    /// [Ban Members]: Permissions::BAN_MEMBERS
+    /// Gets ban info for a specific user in a guild. Returns [`None`] if no ban was found
+    /// matching both the guild and user ids.
     pub async fn get_ban<T: DeserializeOwned>(
         &self,
         guild_id: Snowflake,
@@ -2798,7 +2771,7 @@ impl Http {
         .await
     }
 
-    /// Retrieves the webhooks for the given [channel][`GuildChannel`]'s Id.
+    /// Retrieves the webhooks for the given channel's Id.
     pub async fn get_channel_webhooks<T: DeserializeOwned>(
         &self,
         channel_id: Snowflake,
@@ -3032,13 +3005,11 @@ impl Http {
         .await
     }
 
-    /// For a one-time purchase consumable SKU (of kind [`Consumable`]), marks the entitlement as
+    /// For a one-time purchase consumable SKU (of kind `Consumable`), marks the entitlement as
     /// consumed.
     ///
     /// The entitlement will have its `consumed` field set to `true` when fetched using
     /// [`Self::get_entitlements`].
-    ///
-    /// [`Consumable`]: SkuKind::Consumable
     pub async fn consume_entitlement(&self, entitlement_id: Snowflake) -> Result<()> {
         self.wind(Request {
             body: None,
@@ -3497,7 +3468,7 @@ impl Http {
         .await
     }
 
-    /// Retrieves a specific role in a [`Guild`].
+    /// Retrieves a specific role in a guild.
     pub async fn get_guild_role<T: DeserializeOwned>(
         &self,
         guild_id: Snowflake,
@@ -3545,7 +3516,7 @@ impl Http {
         from_value(value).map_err(From::from)
     }
 
-    /// Retrieves a list of roles in a [`Guild`].
+    /// Retrieves a list of roles in a guild.
     pub async fn get_guild_roles<T, Id>(&self, guild_id: Snowflake) -> Result<ExtractMap<Id, T>>
     where
         T: DeserializeOwned + ExtractKey<Id>,
@@ -3661,7 +3632,7 @@ impl Http {
         .await
     }
 
-    /// Retrieves a list of stickers in a [`Guild`].
+    /// Retrieves a list of stickers in a guild.
     pub async fn get_guild_stickers<T: DeserializeOwned>(
         &self,
         guild_id: Snowflake,
@@ -3690,7 +3661,7 @@ impl Http {
         from_value(value).map_err(From::from)
     }
 
-    /// Retrieves a single sticker in a [`Guild`].
+    /// Retrieves a single sticker in a guild.
     pub async fn get_guild_sticker<T: DeserializeOwned>(
         &self,
         guild_id: Snowflake,
@@ -3717,7 +3688,7 @@ impl Http {
         from_value(value).map_err(From::from)
     }
 
-    /// Retrieves the webhooks for the given [`Guild`]'s Id.
+    /// Retrieves the webhooks for the given guild's Id.
     pub async fn get_guild_webhooks<T: DeserializeOwned>(
         &self,
         guild_id: Snowflake,
@@ -3770,11 +3741,9 @@ impl Http {
         .await
     }
 
-    /// Returns a guild [`Member`] object for the current user.
+    /// Returns a guild member object for the current user.
     ///
-    /// This method only works for user tokens with the [`GuildsMembersRead`] OAuth2 scope.
-    ///
-    /// [`GuildsMembersRead`]: crate::model::application::Scope::GuildsMembersRead
+    /// This method only works for user tokens with the `GuildsMembersRead` OAuth2 scope.
     pub async fn get_current_user_guild_member<T: DeserializeOwned>(
         &self,
         guild_id: Snowflake,
@@ -3916,7 +3885,7 @@ impl Http {
         .await
     }
 
-    /// Retrieves a specific [`StickerPack`] from it's [`StickerPackId`]
+    /// Retrieves a specific sticker pack given its Id.
     pub async fn get_sticker_pack<T: DeserializeOwned>(
         &self,
         sticker_pack_id: Snowflake,
@@ -4122,9 +4091,7 @@ impl Http {
 
     /// Gets the current user's third party connections.
     ///
-    /// This method only works for user tokens with the [`Connections`] OAuth2 scope.
-    ///
-    /// [`Connections`]: crate::model::application::Scope::Connections
+    /// This method only works for user tokens with the `Connections` OAuth2 scope.
     pub async fn get_user_connections<T: DeserializeOwned>(&self) -> Result<Vec<T>> {
         self.fire(Request {
             body: None,
@@ -4353,7 +4320,7 @@ impl Http {
         .await
     }
 
-    /// Deletes a single [`Role`] from a [`Member`] in a [`Guild`].
+    /// Deletes a single role from a member in a guild.
     pub async fn remove_member_role(
         &self,
         guild_id: Snowflake,
@@ -4376,7 +4343,7 @@ impl Http {
         .await
     }
 
-    /// Returns a list of [`Member`]s in a [`Guild`] whose username or nickname starts with a
+    /// Returns a list of members in a guild whose username or nickname starts with a
     /// provided string.
     pub async fn search_guild_members<T: DeserializeOwned>(
         &self,
@@ -4451,10 +4418,6 @@ impl Http {
     }
 
     /// Modify the guild's incident actions.
-    ///
-    /// **Note**: Requires the [Manage Guild] permission.
-    ///
-    /// [Manage Guild]: Permissions::MANAGE_GUILD
     pub async fn edit_guild_incident_actions<T: DeserializeOwned>(
         &self,
         guild_id: Snowflake,
@@ -4640,7 +4603,7 @@ impl Http {
     ///
     /// # Errors
     ///
-    /// If there is an error, it will be either [`Error::Http`] or [`Error::Json`].
+    /// If there is an error, it will be either [`HttpError::Request`] or [`HttpError::Json`].
     pub async fn fire<T: DeserializeOwned>(&self, req: Request<'_>) -> Result<T> {
         let response = self.request(req).await?;
         let response_de = response.json().await?;

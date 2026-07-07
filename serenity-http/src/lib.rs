@@ -1,23 +1,14 @@
-//! The HTTP module which provides functions for performing requests to endpoints in Discord's API.
+//! The HTTP client which provides functions for sending requests to endpoints in Discord's API.
 //!
 //! An important function of the REST API is ratelimiting. Requests to endpoints are ratelimited to
 //! prevent spam, and once ratelimited Discord will stop performing requests. The library
 //! implements protection to pre-emptively ratelimit, to ensure that no wasted requests are made.
 //!
-//! The HTTP module comprises of two types of requests:
-//! - REST API requests, which require an authorization token;
+//! The client performs two types of requests:
+//! - REST API requests, which require authentication to Discord's gateway using a token;
 //! - Other requests, which do not require an authorization token.
 //!
-//! The former require a [`Client`] to have logged in, while the latter may be made regardless of
-//! any other usage of the library.
-//!
 //! If a request spuriously fails, it will be retried once.
-//!
-//! Note that you may want to perform requests through a [model]s' instance methods where possible,
-//! as they each offer different levels of a high-level interface to the HTTP module.
-//!
-//! [`Client`]: crate::Client
-//! [model]: crate::model
 
 #[macro_use]
 extern crate serde;

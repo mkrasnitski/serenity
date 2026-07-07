@@ -75,7 +75,7 @@ impl<'a> CreateAttachment<'a> {
     ///
     /// # Errors
     ///
-    /// Returns [`Error::Http`] if downloading the data fails.
+    /// Returns [`Error::Request`] if downloading the data fails.
     #[cfg(feature = "http")]
     pub async fn url(url: impl IntoUrl, filename: impl Into<Cow<'static, str>>) -> Result<Self> {
         let response = ReqwestClient::new().get(url).send().await?;

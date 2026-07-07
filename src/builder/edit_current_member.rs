@@ -76,7 +76,8 @@ impl<'a> EditCurrentMember<'a> {
     ///
     /// # Errors
     ///
-    /// Returns [`Error::Http`] if the current user lacks permission, or if invalid data is given.
+    /// Returns [`Error::Request`] if the current user lacks permission, or if invalid data is
+    /// given.
     #[cfg(feature = "http")]
     pub async fn execute(self, http: &Http, guild_id: GuildId) -> Result<Member> {
         http.edit_current_member(guild_id.0, &self, self.audit_log_reason).await.map_err(Into::into)

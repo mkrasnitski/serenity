@@ -295,7 +295,7 @@ impl Message {
     ///
     /// # Errors
     ///
-    /// Returns [`Error::Http`] if the current user lacks permission or if invalid data is given.
+    /// Returns [`Error::Request`] if the current user lacks permission or if invalid data is given.
     ///
     /// [Manage Messages]: Permissions::MANAGE_MESSAGES
     pub async fn delete(&self, http: &Http, reason: Option<&str>) -> Result<()> {
@@ -308,7 +308,7 @@ impl Message {
     ///
     /// # Errors
     ///
-    /// Returns [`Error::Http`] if the current user lacks permission or if invalid data is given.
+    /// Returns [`Error::Request`] if the current user lacks permission or if invalid data is given.
     ///
     /// [Manage Messages]: Permissions::MANAGE_MESSAGES
     pub async fn delete_reactions(&self, http: &Http) -> Result<()> {
@@ -322,7 +322,7 @@ impl Message {
     ///
     /// # Errors
     ///
-    /// Returns [`Error::Http`] if the current user did not perform the reaction, or lacks
+    /// Returns [`Error::Request`] if the current user did not perform the reaction, or lacks
     /// permission.
     ///
     /// [Manage Messages]: Permissions::MANAGE_MESSAGES
@@ -341,7 +341,7 @@ impl Message {
     ///
     /// # Errors
     ///
-    /// Returns [`Error::Http`] if the current user lacks permission or if invalid data is given.
+    /// Returns [`Error::Request`] if the current user lacks permission or if invalid data is given.
     ///
     /// [Manage Messages]: Permissions::MANAGE_MESSAGES
     pub async fn delete_reaction_emoji(
@@ -391,7 +391,7 @@ impl Message {
     /// # Errors
     ///
     /// If the `cache` is enabled, returns a [`ModelError::InvalidUser`] if the current user is not
-    /// the author. Otherwise returns [`Error::Http`] if the user lacks permission, as well as if
+    /// the author. Otherwise returns [`Error::Request`] if the user lacks permission, as well as if
     /// invalid data is given.
     ///
     /// Returns a [`ModelError::TooLarge`] if the message contents are too long.
@@ -445,7 +445,7 @@ impl Message {
     ///
     /// # Errors
     ///
-    /// Returns [`Error::Http`] if the current user lacks permission.
+    /// Returns [`Error::Request`] if the current user lacks permission.
     ///
     /// [Read Message History]: Permissions::READ_MESSAGE_HISTORY
     pub async fn reaction_users(
@@ -505,7 +505,7 @@ impl Message {
     ///
     /// # Errors
     ///
-    /// Returns [`Error::Http`] if the current user lacks permission or if invalid data is given.
+    /// Returns [`Error::Request`] if the current user lacks permission or if invalid data is given.
     ///
     /// [Pin Messages]: Permissions::PIN_MESSAGES
     pub async fn pin(&self, http: &Http, reason: Option<&str>) -> Result<()> {
@@ -518,7 +518,7 @@ impl Message {
     ///
     /// # Errors
     ///
-    /// Returns [`Error::Http`] if the current user lacks permission or if invalid data is given.
+    /// Returns [`Error::Request`] if the current user lacks permission or if invalid data is given.
     ///
     /// [Add Reactions]: Permissions::ADD_REACTIONS
     pub async fn react(&self, http: &Http, reaction_type: impl Into<ReactionType>) -> Result<()> {
@@ -587,7 +587,7 @@ impl Message {
     ///
     /// # Errors
     ///
-    /// May return [`Error::Http`] if the `cache` feature is not enabled, or if the cache is
+    /// May return [`Error::Request`] if the `cache` feature is not enabled, or if the cache is
     /// otherwise unavailable.
     pub async fn mentions_me(&self, cache_http: impl CacheHttp) -> Result<bool> {
         #[cfg(feature = "cache")]
@@ -607,7 +607,7 @@ impl Message {
     ///
     /// # Errors
     ///
-    /// Returns [`Error::Http`] if the current user lacks permission or if invalid data is given.
+    /// Returns [`Error::Request`] if the current user lacks permission or if invalid data is given.
     ///
     /// [Pin Messages]: Permissions::PIN_MESSAGES
     pub async fn unpin(&self, http: &Http, reason: Option<&str>) -> Result<()> {

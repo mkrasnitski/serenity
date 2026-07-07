@@ -71,7 +71,7 @@ impl ComponentInteraction {
     ///
     /// # Errors
     ///
-    /// Returns an [`Error::Http`] if there is no interaction response.
+    /// Returns an [`Error::Request`] if there is no interaction response.
     pub async fn get_response(&self, http: &Http) -> Result<Message> {
         http.get_original_interaction_response(&self.token).await.map_err(Into::into)
     }
@@ -83,8 +83,8 @@ impl ComponentInteraction {
     /// # Errors
     ///
     /// Returns an [`Error::Model`] if the message content is too long. May also return an
-    /// [`Error::Http`] if the API returns an error, or an [`Error::Json`] if there is an error in
-    /// deserializing the API response.
+    /// [`Error::Request`] if the API returns an error, or an [`Error::Json`] if there is an error
+    /// in deserializing the API response.
     pub async fn create_response(
         &self,
         http: &Http,
@@ -100,8 +100,8 @@ impl ComponentInteraction {
     /// # Errors
     ///
     /// Returns an [`Error::Model`] if the message content is too long. May also return an
-    /// [`Error::Http`] if the API returns an error, or an [`Error::Json`] if there is an error in
-    /// deserializing the API response.
+    /// [`Error::Request`] if the API returns an error, or an [`Error::Json`] if there is an error
+    /// in deserializing the API response.
     pub async fn edit_response(
         &self,
         http: &Http,
@@ -116,8 +116,8 @@ impl ComponentInteraction {
     ///
     /// # Errors
     ///
-    /// May return [`Error::Http`] if the API returns an error. Such as if the response was already
-    /// deleted.
+    /// May return [`Error::Request`] if the API returns an error. Such as if the response was
+    /// already deleted.
     pub async fn delete_response(&self, http: &Http) -> Result<()> {
         http.delete_original_interaction_response(&self.token).await.map_err(Into::into)
     }
@@ -128,8 +128,8 @@ impl ComponentInteraction {
     ///
     /// # Errors
     ///
-    /// Returns [`Error::Model`] if the content is too long. May also return [`Error::Http`] if the
-    /// API returns an error, or [`Error::Json`] if there is an error in deserializing the
+    /// Returns [`Error::Model`] if the content is too long. May also return [`Error::Request`] if
+    /// the API returns an error, or [`Error::Json`] if there is an error in deserializing the
     /// response.
     pub async fn create_followup(
         &self,
@@ -145,8 +145,8 @@ impl ComponentInteraction {
     ///
     /// # Errors
     ///
-    /// Returns [`Error::Model`] if the content is too long. May also return [`Error::Http`] if the
-    /// API returns an error, or [`Error::Json`] if there is an error in deserializing the
+    /// Returns [`Error::Model`] if the content is too long. May also return [`Error::Request`] if
+    /// the API returns an error, or [`Error::Json`] if there is an error in deserializing the
     /// response.
     pub async fn edit_followup(
         &self,
@@ -161,8 +161,8 @@ impl ComponentInteraction {
     ///
     /// # Errors
     ///
-    /// May return [`Error::Http`] if the API returns an error. Such as if the response was already
-    /// deleted.
+    /// May return [`Error::Request`] if the API returns an error. Such as if the response was
+    /// already deleted.
     pub async fn delete_followup(&self, http: &Http, message_id: MessageId) -> Result<()> {
         http.delete_followup_message(&self.token, message_id.0).await.map_err(Into::into)
     }
@@ -171,7 +171,7 @@ impl ComponentInteraction {
     ///
     /// # Errors
     ///
-    /// May return [`Error::Http`] if the API returns an error. Such as if the response was
+    /// May return [`Error::Request`] if the API returns an error. Such as if the response was
     /// deleted.
     pub async fn get_followup(&self, http: &Http, message_id: MessageId) -> Result<Message> {
         http.get_followup_message(&self.token, message_id.0).await.map_err(Into::into)
@@ -181,7 +181,7 @@ impl ComponentInteraction {
     ///
     /// # Errors
     ///
-    /// Returns an [`Error::Http`] if the API returns an error, or an [`Error::Json`] if there is
+    /// Returns an [`Error::Request`] if the API returns an error, or an [`Error::Json`] if there is
     /// an error in deserializing the API response.
     pub async fn defer(&self, http: &Http) -> Result<()> {
         self.create_response(http, CreateInteractionResponse::Acknowledge).await
@@ -191,7 +191,7 @@ impl ComponentInteraction {
     ///
     /// # Errors
     ///
-    /// May also return an [`Error::Http`] if the API returns an error, or an [`Error::Json`] if
+    /// May also return an [`Error::Request`] if the API returns an error, or an [`Error::Json`] if
     /// there is an error in deserializing the API response.
     pub async fn defer_ephemeral(&self, http: &Http) -> Result<()> {
         let builder = CreateInteractionResponse::Defer(

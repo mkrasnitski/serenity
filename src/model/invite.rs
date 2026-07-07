@@ -93,7 +93,7 @@ impl Invite {
     ///
     /// # Errors
     ///
-    /// Returns [`Error::Http`] if the current user lacks permission or if invalid data is given.
+    /// Returns [`Error::Request`] if the current user lacks permission or if invalid data is given.
     ///
     /// [Create Instant Invite]: Permissions::CREATE_INSTANT_INVITE
     pub async fn create(
@@ -111,7 +111,7 @@ impl Invite {
     ///
     /// # Errors
     ///
-    /// Returns [`Error::Http`] if the current user lacks permission or if invalid data is given.
+    /// Returns [`Error::Request`] if the current user lacks permission or if invalid data is given.
     ///
     /// [Manage Guild]: Permissions::MANAGE_GUILD
     /// [Manage Channels]: Permissions::MANAGE_CHANNELS
@@ -132,8 +132,8 @@ impl Invite {
     ///
     /// # Errors
     ///
-    /// May return an [`Error::Http`] if the invite is invalid. Can also return an [`Error::Json`]
-    /// if there is an error deserializing the API response.
+    /// May return an [`Error::Request`] if the invite is invalid. Can also return an
+    /// [`Error::Json`] if there is an error deserializing the API response.
     pub async fn get(
         http: &Http,
         code: &str,

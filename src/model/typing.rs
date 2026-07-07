@@ -63,7 +63,7 @@ impl Typing {
     ///
     /// # Errors
     ///
-    /// Returns an  [`Error::Http`] if there is an error.
+    /// Returns an  [`Error::Request`] if there is an error.
     ///
     /// [`Channel`]: crate::model::channel::Channel
     pub fn start(http: Arc<Http>, channel_id: GenericChannelId) -> Self {

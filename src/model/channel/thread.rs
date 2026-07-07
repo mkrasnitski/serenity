@@ -73,7 +73,7 @@ impl ThreadId {
     ///
     /// # Errors
     ///
-    /// It may return an [`Error::Http`] if the channel is not a thread channel
+    /// It may return an [`Error::Request`] if the channel is not a thread channel
     pub async fn get_thread_members(self, http: &Http) -> Result<Vec<ThreadMember>> {
         http.get_channel_thread_members(self.0).await.map_err(Into::into)
     }
@@ -82,7 +82,7 @@ impl ThreadId {
     ///
     /// # Errors
     ///
-    /// It may return an [`Error::Http`] if the channel is not a thread channel
+    /// It may return an [`Error::Request`] if the channel is not a thread channel
     pub async fn join_thread(self, http: &Http) -> Result<()> {
         http.join_thread_channel(self.0).await.map_err(Into::into)
     }
@@ -91,7 +91,7 @@ impl ThreadId {
     ///
     /// # Errors
     ///
-    /// Returns [`Error::Http`] if the current user lacks permission.
+    /// Returns [`Error::Request`] if the current user lacks permission.
     pub async fn edit(self, http: &Http, builder: EditThread<'_>) -> Result<GuildThread> {
         builder.execute(http, self).await
     }
@@ -100,7 +100,7 @@ impl ThreadId {
     ///
     /// # Errors
     ///
-    /// It may return an [`Error::Http`] if the channel is not a thread channel
+    /// It may return an [`Error::Request`] if the channel is not a thread channel
     pub async fn leave_thread(self, http: &Http) -> Result<()> {
         http.leave_thread_channel(self.0).await.map_err(Into::into)
     }
@@ -109,7 +109,7 @@ impl ThreadId {
     ///
     /// # Errors
     ///
-    /// It may return an [`Error::Http`] if the channel is not a thread channel
+    /// It may return an [`Error::Request`] if the channel is not a thread channel
     pub async fn add_thread_member(self, http: &Http, user_id: UserId) -> Result<()> {
         http.add_thread_channel_member(self.0, user_id.0).await.map_err(Into::into)
     }
@@ -118,7 +118,7 @@ impl ThreadId {
     ///
     /// # Errors
     ///
-    /// It may return an [`Error::Http`] if the channel is not a thread channel
+    /// It may return an [`Error::Request`] if the channel is not a thread channel
     pub async fn remove_thread_member(self, http: &Http, user_id: UserId) -> Result<()> {
         http.remove_thread_channel_member(self.0, user_id.0).await.map_err(Into::into)
     }
@@ -129,7 +129,7 @@ impl ThreadId {
     ///
     /// # Errors
     ///
-    /// It may return an [`Error::Http`] if the channel is not a thread channel
+    /// It may return an [`Error::Request`] if the channel is not a thread channel
     pub async fn get_thread_member(
         self,
         http: &Http,
@@ -179,7 +179,7 @@ impl GuildThread {
     ///
     /// # Errors
     ///
-    /// Returns [`Error::Http`] if the current user lacks permission.
+    /// Returns [`Error::Request`] if the current user lacks permission.
     pub async fn edit(&mut self, http: &Http, builder: EditThread<'_>) -> Result<()> {
         *self = self.id.edit(http, builder).await?;
         Ok(())
@@ -191,7 +191,7 @@ impl GuildThread {
     ///
     /// # Errors
     ///
-    /// Returns [`Error::Http`] if the current user lacks permission.
+    /// Returns [`Error::Request`] if the current user lacks permission.
     ///
     /// [Manage Threads]: Permissions::MANAGE_THREADS
     pub async fn delete(&self, http: &Http, reason: Option<&str>) -> Result<GuildThread> {

@@ -88,7 +88,8 @@ impl<'a> AddMember<'a> {
     ///
     /// # Errors
     ///
-    /// Returns [`Error::Http`] if the current user lacks permission, or if invalid data is given.
+    /// Returns [`Error::Request`] if the current user lacks permission, or if invalid data is
+    /// given.
     #[cfg(feature = "http")]
     pub async fn execute(
         self,

@@ -167,7 +167,7 @@ impl<'a> EditWebhookMessage<'a> {
     ///
     /// Returns an [`Error::Model`] if the message content is too long.
     ///
-    /// May also return an [`Error::Http`] if the content is malformed, the webhook's token is
+    /// May also return an [`Error::Request`] if the content is malformed, the webhook's token is
     /// invalid, or the given message Id does not belong to the webhook.
     ///
     /// Or may return an [`Error::Json`] if there is an error deserialising Discord's response.

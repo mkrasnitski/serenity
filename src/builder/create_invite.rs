@@ -134,7 +134,7 @@ impl<'a> CreateInvite<'a> {
     ///
     /// # Errors
     ///
-    /// /// Returns [`Error::Http`] if the current user lacks permission or if invalid data is
+    /// Returns [`Error::Request`] if the current user lacks permission or if invalid data is
     /// given.
     ///
     /// [Create Instant Invite]: Permissions::CREATE_INSTANT_INVITE

@@ -121,8 +121,8 @@ impl CreateInteractionResponse<'_> {
     /// # Errors
     ///
     /// Returns an [`Error::Model`] if the message content is too long. May also return an
-    /// [`Error::Http`] if the API returns an error, or an [`Error::Json`] if there is an error in
-    /// deserializing the API response.
+    /// [`Error::Request`] if the API returns an error, or an [`Error::Json`] if there is an error
+    /// in deserializing the API response.
     #[cfg(feature = "http")]
     pub async fn execute(
         mut self,
@@ -414,7 +414,7 @@ impl<'a> CreateAutocompleteResponse<'a> {
     ///
     /// # Errors
     ///
-    /// Returns an [`Error::Http`] if the API returns an error.
+    /// Returns an [`Error::Request`] if the API returns an error.
     #[cfg(feature = "http")]
     pub async fn execute(
         self,

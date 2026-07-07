@@ -97,7 +97,7 @@ impl ChannelId {
     ///
     /// # Errors
     ///
-    /// Returns [`Error::Http`] if the current user lacks permission or if invalid data is given.
+    /// Returns [`Error::Request`] if the current user lacks permission or if invalid data is given.
     ///
     /// [Create Instant Invite]: Permissions::CREATE_INSTANT_INVITE
     pub async fn create_invite(self, http: &Http, builder: CreateInvite<'_>) -> Result<Invite> {
@@ -111,7 +111,7 @@ impl ChannelId {
     ///
     /// # Errors
     ///
-    /// Returns [`Error::Http`] if the current user lacks permission, or if an invalid value is
+    /// Returns [`Error::Request`] if the current user lacks permission, or if an invalid value is
     /// set.
     ///
     /// [permission overwrite]: PermissionOverwrite
@@ -132,7 +132,7 @@ impl ChannelId {
     ///
     /// # Errors
     ///
-    /// Returns [`Error::Http`] if the current user lacks permission.
+    /// Returns [`Error::Request`] if the current user lacks permission.
     ///
     /// [Manage Channel]: Permissions::MANAGE_CHANNELS
     pub async fn delete_permission(
@@ -173,7 +173,7 @@ impl ChannelId {
     ///
     /// # Errors
     ///
-    /// Returns [`Error::Http`] if the current user lacks permission or if invalid data is given.
+    /// Returns [`Error::Request`] if the current user lacks permission or if invalid data is given.
     ///
     /// [Manage Channels]: Permissions::MANAGE_CHANNELS
     /// [Manage Roles]: Permissions::MANAGE_ROLES
@@ -189,7 +189,7 @@ impl ChannelId {
     ///
     /// # Errors
     ///
-    /// Returns [`Error::Http`] if the current user lacks permission. [Manage Webhook]:
+    /// Returns [`Error::Request`] if the current user lacks permission. [Manage Webhook]:
     /// Permissions::MANAGE_WEBHOOKS
     pub async fn follow(
         self,
@@ -214,7 +214,7 @@ impl ChannelId {
     ///
     /// # Errors
     ///
-    /// Returns [`Error::Http`] if the current user lacks permission.
+    /// Returns [`Error::Request`] if the current user lacks permission.
     ///
     /// [Manage Channels]: Permissions::MANAGE_CHANNELS
     pub async fn invites(self, http: &Http) -> Result<Vec<Invite>> {
@@ -230,7 +230,7 @@ impl ChannelId {
     ///
     /// # Errors
     ///
-    /// Returns [`Error::Http`] if the current user lacks permission, and if the user is not the
+    /// Returns [`Error::Request`] if the current user lacks permission, and if the user is not the
     /// author of the message.
     ///
     /// [Manage Messages]: Permissions::MANAGE_MESSAGES
@@ -244,7 +244,7 @@ impl ChannelId {
     ///
     /// # Errors
     ///
-    /// Returns [`Error::Http`] if the current user lacks permission.
+    /// Returns [`Error::Request`] if the current user lacks permission.
     ///
     /// [Manage Webhooks]: Permissions::MANAGE_WEBHOOKS
     pub async fn webhooks(self, http: &Http) -> Result<Vec<Webhook>> {
@@ -264,7 +264,7 @@ impl ChannelId {
     ///
     /// # Errors
     ///
-    /// Returns [`Error::Http`] if the channel is not a stage channel, or if there is no stage
+    /// Returns [`Error::Request`] if the channel is not a stage channel, or if there is no stage
     /// instance currently.
     pub async fn get_stage_instance(self, http: &Http) -> Result<StageInstance> {
         http.get_stage_instance(self.0).await.map_err(Into::into)
@@ -274,7 +274,7 @@ impl ChannelId {
     ///
     /// # Errors
     ///
-    /// Returns [`Error::Http`] if there is already a stage instance currently.
+    /// Returns [`Error::Request`] if there is already a stage instance currently.
     pub async fn create_stage_instance(
         self,
         http: &Http,
@@ -289,7 +289,7 @@ impl ChannelId {
     ///
     /// Returns [`ModelError::InvalidChannelType`] if the channel is not a stage channel.
     ///
-    /// Returns [`Error::Http`] if the channel is not a stage channel, or there is no stage
+    /// Returns [`Error::Request`] if the channel is not a stage channel, or there is no stage
     /// instance currently.
     pub async fn edit_stage_instance(
         self,
@@ -303,7 +303,7 @@ impl ChannelId {
     ///
     /// # Errors
     ///
-    /// Returns [`Error::Http`] if the channel is not a stage channel, or if there is no stage
+    /// Returns [`Error::Request`] if the channel is not a stage channel, or if there is no stage
     /// instance currently.
     pub async fn delete_stage_instance(self, http: &Http, reason: Option<&str>) -> Result<()> {
         http.delete_stage_instance(self.0, reason).await.map_err(Into::into)
@@ -313,7 +313,8 @@ impl ChannelId {
     ///
     /// # Errors
     ///
-    /// Returns [`Error::Http`] if the current user lacks permission, or if invalid data is given.
+    /// Returns [`Error::Request`] if the current user lacks permission, or if invalid data is
+    /// given.
     #[doc(alias = "create_public_thread")]
     pub async fn create_thread_from_message(
         self,
@@ -328,7 +329,8 @@ impl ChannelId {
     ///
     /// # Errors
     ///
-    /// Returns [`Error::Http`] if the current user lacks permission, or if invalid data is given.
+    /// Returns [`Error::Request`] if the current user lacks permission, or if invalid data is
+    /// given.
     #[doc(alias = "create_public_thread", alias = "create_private_thread")]
     pub async fn create_thread(
         self,
@@ -342,7 +344,8 @@ impl ChannelId {
     ///
     /// # Errors
     ///
-    /// Returns [`Error::Http`] if the current user lacks permission, or if invalid data is given.
+    /// Returns [`Error::Request`] if the current user lacks permission, or if invalid data is
+    /// given.
     pub async fn create_forum_post(
         self,
         http: &Http,
@@ -355,7 +358,7 @@ impl ChannelId {
     ///
     /// # Errors
     ///
-    /// It may return an [`Error::Http`] if the bot doesn't have the permission to get it.
+    /// It may return an [`Error::Request`] if the bot doesn't have the permission to get it.
     pub async fn get_archived_private_threads(
         self,
         http: &Http,
@@ -369,7 +372,7 @@ impl ChannelId {
     ///
     /// # Errors
     ///
-    /// It may return an [`Error::Http`] if the bot doesn't have the permission to get it.
+    /// It may return an [`Error::Request`] if the bot doesn't have the permission to get it.
     pub async fn get_archived_public_threads(
         self,
         http: &Http,
@@ -383,7 +386,7 @@ impl ChannelId {
     ///
     /// # Errors
     ///
-    /// It may return an [`Error::Http`] if the bot doesn't have the permission to get it.
+    /// It may return an [`Error::Request`] if the bot doesn't have the permission to get it.
     pub async fn get_joined_archived_private_threads(
         self,
         http: &Http,
@@ -452,7 +455,7 @@ impl GenericChannelId {
     ///
     /// # Errors
     ///
-    /// Returns [`Error::Http`] if the current user lacks permission to send messages to this
+    /// Returns [`Error::Request`] if the current user lacks permission to send messages to this
     /// channel.
     ///
     /// [Send Messages]: Permissions::SEND_MESSAGES
@@ -469,7 +472,7 @@ impl GenericChannelId {
     ///
     /// # Errors
     ///
-    /// Returns [`Error::Http`] if the current user lacks permission.
+    /// Returns [`Error::Request`] if the current user lacks permission.
     ///
     /// [Add Reactions]: Permissions::ADD_REACTIONS
     pub async fn create_reaction(
@@ -489,7 +492,7 @@ impl GenericChannelId {
     ///
     /// # Errors
     ///
-    /// Returns [`Error::Http`] if the current user lacks permission.
+    /// Returns [`Error::Request`] if the current user lacks permission.
     ///
     /// [Manage Channels]: Permissions::MANAGE_CHANNELS
     pub async fn delete(self, http: &Http, reason: Option<&str>) -> Result<Channel> {
@@ -505,7 +508,7 @@ impl GenericChannelId {
     ///
     /// # Errors
     ///
-    /// Returns [`Error::Http`] if the current user lacks permission to delete the message.
+    /// Returns [`Error::Request`] if the current user lacks permission to delete the message.
     ///
     /// [Manage Messages]: Permissions::MANAGE_MESSAGES
     pub async fn delete_message(
@@ -531,7 +534,7 @@ impl GenericChannelId {
     /// Returns [`ModelError::TooSmall`] or [`ModelError::TooLarge`] if an attempt was made to
     /// delete either 0 or more than 100 messages.
     ///
-    /// Also will return [`Error::Http`] if the current user lacks permission to delete messages.
+    /// Also will return [`Error::Request`] if the current user lacks permission to delete messages.
     ///
     /// [Manage Messages]: Permissions::MANAGE_MESSAGES
     pub async fn delete_messages(
@@ -568,7 +571,7 @@ impl GenericChannelId {
     ///
     /// # Errors
     ///
-    /// Returns [`Error::Http`] if the current user did not perform the reaction, and lacks
+    /// Returns [`Error::Request`] if the current user did not perform the reaction, and lacks
     /// permission.
     ///
     /// [Manage Messages]: Permissions::MANAGE_MESSAGES
@@ -597,7 +600,7 @@ impl GenericChannelId {
     ///
     /// # Errors
     ///
-    /// Returns [`Error::Http`] if the current user lacks permission
+    /// Returns [`Error::Request`] if the current user lacks permission
     ///
     /// [Manage Messages]: Permissions::MANAGE_MESSAGES
     pub async fn delete_reactions(self, http: &Http, message_id: MessageId) -> Result<()> {
@@ -610,7 +613,7 @@ impl GenericChannelId {
     ///
     /// # Errors
     ///
-    /// Returns [`Error::Http`] if the current user lacks permission.
+    /// Returns [`Error::Request`] if the current user lacks permission.
     ///
     /// [Manage Messages]: Permissions::MANAGE_MESSAGES
     pub async fn delete_reaction_emoji(
@@ -651,7 +654,7 @@ impl GenericChannelId {
     ///
     /// # Errors
     ///
-    /// Returns [`Error::Http`] if the channel retrieval request failed.
+    /// Returns [`Error::Request`] if the channel retrieval request failed.
     #[cfg_attr(not(feature = "cache"), expect(unused_variables))]
     pub async fn to_channel(
         self,
@@ -715,7 +718,7 @@ impl GenericChannelId {
     ///
     /// # Errors
     ///
-    /// Returns [`Error::Http`] if the current user lacks permission.
+    /// Returns [`Error::Request`] if the current user lacks permission.
     ///
     /// [Read Message History]: Permissions::READ_MESSAGE_HISTORY
     pub async fn message(
@@ -750,7 +753,7 @@ impl GenericChannelId {
     ///
     /// # Errors
     ///
-    /// Returns [`Error::Http`] if the current user lacks permission.
+    /// Returns [`Error::Request`] if the current user lacks permission.
     ///
     /// [Read Message History]: Permissions::READ_MESSAGE_HISTORY
     pub async fn messages(
@@ -802,7 +805,7 @@ impl GenericChannelId {
     ///
     /// # Errors
     ///
-    /// Returns [`Error::Http`] if the current user lacks permission, or if the channel has too
+    /// Returns [`Error::Request`] if the current user lacks permission, or if the channel has too
     /// many pinned messages.
     ///
     /// [Pin Messages]: Permissions::PIN_MESSAGES
@@ -820,7 +823,7 @@ impl GenericChannelId {
     ///
     /// # Errors
     ///
-    /// Returns [`Error::Http`] if the current user lacks permission to view the channel.
+    /// Returns [`Error::Request`] if the current user lacks permission to view the channel.
     ///
     /// [Read Message History]: Permissions::READ_MESSAGE_HISTORY
     pub async fn pins(
@@ -858,7 +861,7 @@ impl GenericChannelId {
     ///
     /// # Errors
     ///
-    /// Returns [`Error::Http`] if the current user lacks permission to read messages in the
+    /// Returns [`Error::Request`] if the current user lacks permission to read messages in the
     /// channel.
     ///
     /// [Read Message History]: Permissions::READ_MESSAGE_HISTORY
@@ -1020,7 +1023,7 @@ impl GenericChannelId {
     ///
     /// # Errors
     ///
-    /// Returns [`Error::Http`] if the current user lacks permission
+    /// Returns [`Error::Request`] if the current user lacks permission
     /// to send messages in this channel.
     pub fn start_typing(self, http: Arc<Http>) -> Typing {
         Typing::start(http, self)
@@ -1032,7 +1035,7 @@ impl GenericChannelId {
     ///
     /// # Errors
     ///
-    /// Returns [`Error::Http`] if the current user lacks permission.
+    /// Returns [`Error::Request`] if the current user lacks permission.
     ///
     /// [Pin Messages]: Permissions::PIN_MESSAGES
     pub async fn unpin(

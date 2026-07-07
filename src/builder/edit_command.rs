@@ -159,7 +159,7 @@ impl<'a> EditCommand<'a> {
     ///
     /// # Errors
     ///
-    /// Returns [`Error::Http`] if invalid data is given. See [Discord's docs] for more details.
+    /// Returns [`Error::Request`] if invalid data is given. See [Discord's docs] for more details.
     ///
     /// May also return [`Error::Json`] if there is an error in deserializing the API response.
     ///

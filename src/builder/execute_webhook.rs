@@ -345,7 +345,7 @@ impl<'a> ExecuteWebhook<'a> {
     ///
     /// # Errors
     ///
-    /// Returns [`Error::Http`] if the content is malformed, if the token is invalid, or if
+    /// Returns [`Error::Request`] if the content is malformed, if the token is invalid, or if
     /// execution is attempted in a thread not belonging to the webhook's [`Channel`].
     ///
     /// Returns [`Error::Json`] if there is an error in deserialising Discord's response.

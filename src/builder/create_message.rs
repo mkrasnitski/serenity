@@ -273,7 +273,7 @@ impl<'a> CreateMessage<'a> {
     ///
     /// Returns a [`ModelError::TooLarge`] if the message contents are over the above limits.
     ///
-    /// Returns [`Error::Http`] if the current user lacks permission or if invalid data is given.
+    /// Returns [`Error::Request`] if the current user lacks permission or if invalid data is given.
     ///
     /// [Send Messages]: Permissions::SEND_MESSAGES
     /// [Attach Files]: Permissions::ATTACH_FILES

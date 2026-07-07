@@ -460,7 +460,7 @@ impl Client {
     /// # Errors
     ///
     /// Returns [`Error::Gateway`] when all shards have shutdown due to an error.
-    /// Returns [`Error::Http`] if fetching the current User fails when initialising a voice
+    /// Returns [`Error::Request`] if fetching the current User fails when initialising a voice
     /// manager.
     ///
     /// [gateway docs]: crate::gateway#sharding
@@ -503,7 +503,7 @@ impl Client {
     /// # Errors
     ///
     /// Returns [`Error::Gateway`] when all shards have shutdown due to an error.
-    /// Returns [`Error::Http`] if fetching the current User fails when initialising a voice
+    /// Returns [`Error::Request`] if fetching the current User fails when initialising a voice
     /// manager.
     ///
     /// [gateway docs]: crate::gateway#sharding
@@ -569,7 +569,7 @@ impl Client {
     /// # Errors
     ///
     /// Returns [`Error::Gateway`] when all shards have shutdown due to an error.
-    /// Returns [`Error::Http`] if fetching the current User fails when initialising a voice
+    /// Returns [`Error::Request`] if fetching the current User fails when initialising a voice
     /// manager.
     ///
     /// [gateway docs]: crate::gateway#sharding
@@ -612,7 +612,7 @@ impl Client {
     /// # Errors
     ///
     /// Returns [`Error::Gateway`] when all shards have shutdown due to an error.
-    /// Returns [`Error::Http`] if fetching the current User fails when initialising a voice
+    /// Returns [`Error::Request`] if fetching the current User fails when initialising a voice
     /// manager.
     ///
     /// [Gateway docs]: crate::gateway#sharding
@@ -655,7 +655,7 @@ impl Client {
     /// # Errors
     ///
     /// Returns [`Error::Gateway`] when all shards have shutdown due to an error.
-    /// Returns [`Error::Http`] if fetching the current User fails when initialising a voice
+    /// Returns [`Error::Request`] if fetching the current User fails when initialising a voice
     /// manager.
     ///
     /// [Gateway docs]: crate::gateway#sharding

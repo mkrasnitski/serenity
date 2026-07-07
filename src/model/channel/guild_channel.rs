@@ -189,7 +189,7 @@ impl GuildChannel {
     ///
     /// # Errors
     ///
-    /// Returns [`Error::Http`] if the current user lacks permission.
+    /// Returns [`Error::Request`] if the current user lacks permission.
     ///
     /// [Manage Channels]: Permissions::MANAGE_CHANNELS
     pub async fn delete(&self, http: &Http, reason: Option<&str>) -> Result<GuildChannel> {
@@ -222,7 +222,7 @@ impl GuildChannel {
     ///
     /// # Errors
     ///
-    /// Returns [`Error::Http`] if the current user lacks permission or if invalid data is given.
+    /// Returns [`Error::Request`] if the current user lacks permission or if invalid data is given.
     ///
     /// [Manage Channels]: Permissions::MANAGE_CHANNELS
     /// [Manage Roles]: Permissions::MANAGE_ROLES
@@ -269,7 +269,7 @@ impl GuildChannel {
     ///
     /// Returns a [`ModelError::InvalidChannelType`] if the channel is not a stage channel.
     ///
-    /// Returns [`Error::Http`] if the user lacks permission, or if invalid data is given.
+    /// Returns [`Error::Request`] if the user lacks permission, or if invalid data is given.
     ///
     /// [Request to Speak]: Permissions::REQUEST_TO_SPEAK
     /// [Mute Members]: Permissions::MUTE_MEMBERS
@@ -328,7 +328,7 @@ impl GuildChannel {
     /// If the `cache` is enabled, returns a [`ModelError::InvalidChannelType`] if the channel is
     /// not a stage channel.
     ///
-    /// Returns [`Error::Http`] if the user lacks permission, or if invalid data is given.
+    /// Returns [`Error::Request`] if the user lacks permission, or if invalid data is given.
     ///
     /// [Request to Speak]: Permissions::REQUEST_TO_SPEAK
     /// [Mute Members]: Permissions::MUTE_MEMBERS
@@ -413,7 +413,7 @@ impl GuildChannel {
     ///
     /// Returns [`ModelError::InvalidChannelType`] if the channel is not a stage channel.
     ///
-    /// Returns [`Error::Http`] if there is no stage instance currently.
+    /// Returns [`Error::Request`] if there is no stage instance currently.
     pub async fn get_stage_instance(&self, http: &Http) -> Result<StageInstance> {
         if self.base.kind != ChannelType::Stage {
             return Err(Error::Model(ModelError::InvalidChannelType));
@@ -428,7 +428,7 @@ impl GuildChannel {
     ///
     /// Returns [`ModelError::InvalidChannelType`] if the channel is not a stage channel.
     ///
-    /// Returns [`Error::Http`] if there is already a stage instance currently.
+    /// Returns [`Error::Request`] if there is already a stage instance currently.
     pub async fn create_stage_instance(
         &self,
         http: &Http,
@@ -447,7 +447,7 @@ impl GuildChannel {
     ///
     /// Returns [`ModelError::InvalidChannelType`] if the channel is not a stage channel.
     ///
-    /// Returns [`Error::Http`] if the channel is not a stage channel, or there is no stage
+    /// Returns [`Error::Request`] if the channel is not a stage channel, or there is no stage
     /// instance currently.
     pub async fn edit_stage_instance(
         &self,
@@ -467,7 +467,7 @@ impl GuildChannel {
     ///
     /// Returns [`ModelError::InvalidChannelType`] if the channel is not a stage channel.
     ///
-    /// Returns [`Error::Http`] if there is no stage instance currently.
+    /// Returns [`Error::Request`] if there is no stage instance currently.
     pub async fn delete_stage_instance(&self, http: &Http, reason: Option<&str>) -> Result<()> {
         if self.base.kind != ChannelType::Stage {
             return Err(Error::Model(ModelError::InvalidChannelType));

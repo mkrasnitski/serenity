@@ -171,7 +171,9 @@ impl Ratelimiter {
 
     /// # Errors
     ///
-    /// Only error kind that may be returned is [`Error::Http`].
+    /// Only error kind that may be returned is [`HttpError::Request`].
+    ///
+    /// [`HttpError::Request`]: crate::error::HttpError::Request
     #[cfg_attr(feature = "tracing_instrument", instrument)]
     pub async fn perform(&self, req: &Request<'_>) -> Result<Response> {
         loop {
@@ -275,7 +277,7 @@ impl Ratelimiter {
 ///
 /// **Note**: You should _not_ mutate any of the fields, as this can help cause 429s.
 ///
-/// [`Http`]: super::Http
+/// [`Http`]: crate::client::Http
 /// [Discord docs]: https://docs.discord.com/developers/topics/rate-limits
 #[derive(Debug)]
 pub struct Ratelimit {

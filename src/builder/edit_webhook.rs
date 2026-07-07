@@ -63,7 +63,7 @@ impl<'a> EditWebhook<'a> {
     ///
     /// # Errors
     ///
-    /// Returns [`Error::Http`] if the content is malformed, or if the token is invalid.
+    /// Returns [`Error::Request`] if the content is malformed, or if the token is invalid.
     ///
     /// Returns [`Error::Json`] if there is an error in deserialising Discord's response.
     #[cfg(feature = "http")]

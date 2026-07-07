@@ -177,7 +177,7 @@ impl Command {
     ///
     /// # Errors
     ///
-    /// If there is an error, it will be either [`Error::Http`] or [`Error::Json`].
+    /// If there is an error, it will be either [`Error::Request`] or [`Error::Json`].
     pub async fn get_global_commands(http: &Http) -> Result<Vec<Command>> {
         http.get_global_commands().await.map_err(Into::into)
     }
@@ -186,7 +186,7 @@ impl Command {
     ///
     /// # Errors
     ///
-    /// If there is an error, it will be either [`Error::Http`] or [`Error::Json`].
+    /// If there is an error, it will be either [`Error::Request`] or [`Error::Json`].
     pub async fn get_global_commands_with_localizations(http: &Http) -> Result<Vec<Command>> {
         http.get_global_commands_with_localizations().await.map_err(Into::into)
     }
@@ -195,7 +195,7 @@ impl Command {
     ///
     /// # Errors
     ///
-    /// If there is an error, it will be either [`Error::Http`] or [`Error::Json`].
+    /// If there is an error, it will be either [`Error::Request`] or [`Error::Json`].
     pub async fn get_global_command(http: &Http, command_id: CommandId) -> Result<Command> {
         http.get_global_command(command_id.0).await.map_err(Into::into)
     }
@@ -204,7 +204,7 @@ impl Command {
     ///
     /// # Errors
     ///
-    /// If there is an error, it will be either [`Error::Http`] or [`Error::Json`].
+    /// If there is an error, it will be either [`Error::Request`] or [`Error::Json`].
     pub async fn delete_global_command(http: &Http, command_id: CommandId) -> Result<()> {
         http.delete_global_command(command_id.0).await.map_err(Into::into)
     }

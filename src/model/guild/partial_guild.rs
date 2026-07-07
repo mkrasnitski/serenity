@@ -168,7 +168,7 @@ impl PartialGuild {
     ///
     /// # Errors
     ///
-    /// Returns [`Error::Http`] if the current user lacks permission or if invalid data is given.
+    /// Returns [`Error::Request`] if the current user lacks permission or if invalid data is given.
     ///
     /// [Manage Guild]: Permissions::MANAGE_GUILD
     pub async fn edit(&mut self, http: &Http, builder: EditGuild<'_>) -> Result<()> {
@@ -180,7 +180,7 @@ impl PartialGuild {
     ///
     /// # Errors
     ///
-    /// Returns [`Error::Http`] if the current user is not
+    /// Returns [`Error::Request`] if the current user is not
     /// in the guild.
     pub async fn get(cache_http: impl CacheHttp, guild_id: GuildId) -> Result<PartialGuild> {
         guild_id.to_partial_guild(cache_http).await

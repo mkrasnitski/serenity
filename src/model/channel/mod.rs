@@ -163,7 +163,7 @@ impl Channel {
     ///
     /// # Errors
     ///
-    /// Returns [`Error::Http`] if the current user lacks permission.
+    /// Returns [`Error::Request`] if the current user lacks permission.
     pub async fn delete(&self, http: &Http, reason: Option<&str>) -> Result<()> {
         match self {
             Self::Guild(public_channel) => {

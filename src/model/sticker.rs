@@ -11,8 +11,8 @@ impl StickerPackId {
     ///
     /// # Errors
     ///
-    /// Returns [`Error::Http`] if a [`StickerPack`] with that [`StickerPackId`] does not exist, or
-    /// is otherwise unavailable.
+    /// Returns [`Error::Request`] if a [`StickerPack`] with that [`StickerPackId`] does not exist,
+    /// or is otherwise unavailable.
     pub async fn to_sticker_pack(self, http: &Http) -> Result<StickerPack> {
         http.get_sticker_pack(self.0).await.map_err(Into::into)
     }
@@ -24,7 +24,7 @@ impl StickerId {
     ///
     /// # Errors
     ///
-    /// Returns [`Error::Http`] if a [`Sticker`] with that [`StickerId`] does not exist, or is
+    /// Returns [`Error::Request`] if a [`Sticker`] with that [`StickerId`] does not exist, or is
     /// otherwise unavailable.
     pub async fn to_sticker(self, http: &Http) -> Result<Sticker> {
         http.get_sticker(self.0).await.map_err(Into::into)
@@ -149,7 +149,7 @@ impl Sticker {
     ///
     /// # Errors
     ///
-    /// Returns [`Error::Http`] if the current user lacks permission to delete the sticker.
+    /// Returns [`Error::Request`] if the current user lacks permission to delete the sticker.
     ///
     /// [Create Guild Expressions]: Permissions::CREATE_GUILD_EXPRESSIONS
     /// [Manage Guild Expressions]: Permissions::MANAGE_GUILD_EXPRESSIONS
@@ -188,7 +188,7 @@ impl Sticker {
     ///
     /// # Errors
     ///
-    /// Returns [`Error::Http`] if the current user lacks permission.
+    /// Returns [`Error::Request`] if the current user lacks permission.
     ///
     /// [Create Guild Expressions]: Permissions::CREATE_GUILD_EXPRESSIONS
     /// [Manage Guild Expressions]: Permissions::MANAGE_GUILD_EXPRESSIONS

@@ -138,8 +138,8 @@ impl Webhook {
     ///
     /// # Errors
     ///
-    /// Returns an [`Error::Http`] if the current user is not authenticated, or if the webhook does
-    /// not exist.
+    /// Returns an [`Error::Request`] if the current user is not authenticated, or if the webhook
+    /// does not exist.
     ///
     /// May also return an [`Error::Json`] if there is an error in deserialising Discord's
     /// response.
@@ -171,7 +171,7 @@ impl Webhook {
     ///
     /// # Errors
     ///
-    /// Returns an [`Error::Http`] if the webhook does not exist, or if the token is invalid.
+    /// Returns an [`Error::Request`] if the webhook does not exist, or if the token is invalid.
     ///
     /// May also return an [`Error::Json`] if there is an error in deserialising Discord's
     /// response.
@@ -205,7 +205,7 @@ impl Webhook {
     ///
     /// # Errors
     ///
-    /// Returns an [`Error::Http`] if the url is malformed, or otherwise if the webhook does not
+    /// Returns an [`Error::Request`] if the url is malformed, or otherwise if the webhook does not
     /// exist, or if the token is invalid.
     ///
     /// May also return an [`Error::Json`] if there is an error in deserialising Discord's
@@ -221,7 +221,7 @@ impl Webhook {
     ///
     /// # Errors
     ///
-    /// Returns [`Error::Http`] if the webhook does not exist, the token is invalid, or if the
+    /// Returns [`Error::Request`] if the webhook does not exist, the token is invalid, or if the
     /// webhook could not otherwise be deleted.
     pub async fn delete(&self, http: &Http, reason: Option<&str>) -> Result<()> {
         match &self.token {
@@ -260,7 +260,8 @@ impl Webhook {
     ///
     /// Returns an [`Error::Model`] if [`Self::token`] is [`None`].
     ///
-    /// May also return an [`Error::Http`] if the content is malformed, or if the token is invalid.
+    /// May also return an [`Error::Request`] if the content is malformed, or if the token is
+    /// invalid.
     ///
     /// Or may return an [`Error::Json`] if there is an error in deserialising Discord's response.
     pub async fn edit(&mut self, http: &Http, builder: EditWebhook<'_>) -> Result<()> {
@@ -323,7 +324,7 @@ impl Webhook {
     ///
     /// Returns an [`Error::Model`] if [`Self::token`] is [`None`].
     ///
-    /// May also return an [`Error::Http`] if the content is malformed, or if the webhook's token
+    /// May also return an [`Error::Request`] if the content is malformed, or if the webhook's token
     /// is invalid.
     ///
     /// Or may return an [`Error::Json`] if there is an error deserialising Discord's response.
@@ -343,8 +344,8 @@ impl Webhook {
     ///
     /// Returns an [`Error::Model`] if the [`Self::token`] is [`None`].
     ///
-    /// May also return [`Error::Http`] if the webhook's token is invalid, or the given message Id
-    /// does not belong to the current webhook.
+    /// May also return [`Error::Request`] if the webhook's token is invalid, or the given message
+    /// Id does not belong to the current webhook.
     ///
     /// Or may return an [`Error::Json`] if there is an error deserialising Discord's response.
     pub async fn get_message(
@@ -368,7 +369,7 @@ impl Webhook {
     /// Returns an [`Error::Model`] if [`Self::token`] is [`None`], or if the message content is
     /// too long.
     ///
-    /// May also return an [`Error::Http`] if the content is malformed, the webhook's token is
+    /// May also return an [`Error::Request`] if the content is malformed, the webhook's token is
     /// invalid, or the given message Id does not belong to the current webhook.
     ///
     /// Or may return an [`Error::Json`] if there is an error deserialising Discord's response.
@@ -388,7 +389,7 @@ impl Webhook {
     ///
     /// Returns an [`Error::Model`] if the [`Self::token`] is [`None`].
     ///
-    /// May also return an [`Error::Http`] if the webhook's token is invalid or the given message
+    /// May also return an [`Error::Request`] if the webhook's token is invalid or the given message
     /// Id does not belong to the current webhook.
     pub async fn delete_message(
         &self,
@@ -411,7 +412,7 @@ impl Webhook {
     ///
     /// Returns an [`Error::Model`] if the [`Self::token`] is [`None`].
     ///
-    /// May also return an [`Error::Http`] if the http client errors or if Discord returns an
+    /// May also return an [`Error::Request`] if the http client errors or if Discord returns an
     /// error. Such as if the [`Webhook`] was deleted.
     ///
     /// Or may return an [`Error::Json`] if there is an error deserialising Discord's response.
@@ -440,7 +441,7 @@ impl WebhookId {
     ///
     /// # Errors
     ///
-    /// Returns an [`Error::Http`] if the http client errors or if Discord returns an error. Such
+    /// Returns an [`Error::Request`] if the http client errors or if Discord returns an error. Such
     /// as if the [`WebhookId`] does not exist.
     ///
     /// May also return an [`Error::Json`] if there is an error in deserialising the response.

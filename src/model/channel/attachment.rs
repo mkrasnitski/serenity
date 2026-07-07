@@ -164,7 +164,7 @@ impl Attachment {
     ///
     /// Returns an [`Error::Io`] when there is a problem reading the contents of the HTTP response.
     ///
-    /// Returns an [`Error::Http`] when there is a problem retrieving the attachment.
+    /// Returns an [`Error::Request`] when there is a problem retrieving the attachment.
     ///
     /// [`Message`]: super::Message
     pub async fn download(&self) -> Result<Vec<u8>> {
