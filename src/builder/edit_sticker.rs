@@ -82,6 +82,8 @@ impl<'a> EditSticker<'a> {
         guild_id: GuildId,
         sticker_id: StickerId,
     ) -> Result<Sticker> {
-        http.edit_sticker(guild_id.0, sticker_id.0, &self, self.audit_log_reason).await
+        http.edit_sticker(guild_id.0, sticker_id.0, &self, self.audit_log_reason)
+            .await
+            .map_err(Into::into)
     }
 }

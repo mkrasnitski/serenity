@@ -4,7 +4,7 @@ use reqwest::multipart::{Form, Part};
 use serenity_utils::{AttachmentData, AttachmentDataKind};
 use tokio::fs::File;
 
-use crate::internal::prelude::*;
+use crate::error::Result;
 
 async fn create_part(attachment: AttachmentData<'_>) -> Result<Part> {
     let mut part = match attachment.kind {

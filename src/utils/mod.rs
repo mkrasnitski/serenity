@@ -10,11 +10,10 @@ use std::num::NonZeroU16;
 
 #[cfg(feature = "cache")]
 pub use content_safe::*;
-use serenity_utils::Snowflake;
-use url::Url;
 
 pub use self::custom_message::CustomMessage;
 pub use self::message_builder::{Content, ContentModifier, EmbedMessageBuilding, MessageBuilder};
+use crate::http::DOMAINS;
 use crate::model::prelude::*;
 
 /// Retrieves the "code" part of an invite out of a URL.
@@ -352,16 +351,6 @@ pub fn parse_quotes(s: &str) -> Vec<String> {
     args
 }
 
-/// Discord's official domains. This is used in [`parse_webhook`] and in its corresponding test.
-const DOMAINS: [&str; 6] = [
-    "discord.com",
-    "canary.discord.com",
-    "ptb.discord.com",
-    "discordapp.com",
-    "canary.discordapp.com",
-    "ptb.discordapp.com",
-];
-
 const MAX_DOMAIN_LEN: usize = {
     let mut max_len = 0;
     let mut i = 0;
@@ -377,33 +366,6 @@ const MAX_DOMAIN_LEN: usize = {
 
     max_len
 };
-
-/// Parses the id and token from a webhook url. Expects a [`url::Url`] rather than a [`&str`].
-///
-/// # Examples
-///
-/// ```rust
-/// use serenity::utils;
-///
-/// let url_str = "https://discord.com/api/webhooks/245037420704169985/ig5AO-wdVWpCBtUUMxmgsWryqgsW3DChbKYOINftJ4DCrUbnkedoYZD0VOH1QLr-S3sV";
-/// let url = url_str.parse().unwrap();
-/// let (id, token) = utils::parse_webhook(&url).unwrap();
-///
-/// assert_eq!(id, 245037420704169985);
-/// assert_eq!(token, "ig5AO-wdVWpCBtUUMxmgsWryqgsW3DChbKYOINftJ4DCrUbnkedoYZD0VOH1QLr-S3sV");
-/// ```
-#[must_use]
-pub fn parse_webhook(url: &Url) -> Option<(Snowflake, &str)> {
-    let (webhook_id, token) = url.path().strip_prefix("/api/webhooks/")?.split_once('/')?;
-    if !["http", "https"].contains(&url.scheme())
-        || !DOMAINS.contains(&url.domain()?)
-        || !(17..=20).contains(&webhook_id.len())
-        || !(60..=68).contains(&token.len())
-    {
-        return None;
-    }
-    Some((webhook_id.parse().ok()?, token))
-}
 
 /// Retrieves IDs from "{channel ID}-{message ID}" (retrieved by shift-clicking on "Copy ID").
 ///
@@ -581,18 +543,5 @@ mod test {
     fn test_quote_parser() {
         let parsed = parse_quotes("a \"b c\" d\"e f\"  g");
         assert_eq!(parsed, ["a", "b c", "d", "e f", "g"]);
-    }
-
-    #[test]
-    fn test_webhook_parser() {
-        for domain in DOMAINS {
-            let url = format!("https://{domain}/api/webhooks/245037420704169985/ig5AO-wdVWpCBtUUMxmgsWryqgsW3DChbKYOINftJ4DCrUbnkedoYZD0VOH1QLr-S3sV").parse().unwrap();
-            let (id, token) = parse_webhook(&url).unwrap();
-            assert_eq!(id, 245037420704169985);
-            assert_eq!(
-                token,
-                "ig5AO-wdVWpCBtUUMxmgsWryqgsW3DChbKYOINftJ4DCrUbnkedoYZD0VOH1QLr-S3sV"
-            );
-        }
     }
 }

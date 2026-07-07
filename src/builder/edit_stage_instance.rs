@@ -51,6 +51,8 @@ impl<'a> EditStageInstance<'a> {
     /// instance currently.
     #[cfg(feature = "http")]
     pub async fn execute(self, http: &Http, channel_id: ChannelId) -> Result<StageInstance> {
-        http.edit_stage_instance(channel_id.0, &self, self.audit_log_reason).await
+        http.edit_stage_instance(channel_id.0, &self, self.audit_log_reason)
+            .await
+            .map_err(Into::into)
     }
 }

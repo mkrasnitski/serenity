@@ -1,0 +1,48 @@
+[package]
+name = "serenity-http"
+version = "0.12.5"
+documentation.workspace = true
+homepage.workspace = true
+repository.workspace = true
+keywords.workspace = true
+license.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+# Serenity workspace crates
+serenity-utils = { path = "../serenity-utils" }
+
+# Workspace dependencies
+aformat = { workspace = true }
+arrayvec = { workspace = true }
+dashmap = { workspace = true }
+extract_map = { workspace = true }
+nonmax = { workspace = true }
+parking_lot = { workspace = true }
+percent-encoding = { workspace = true }
+reqwest = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+small-fixed-array = { workspace = true }
+to-arraystring = { workspace = true }
+tokio = { workspace = true }
+tracing = { workspace = true }
+typesize = { workspace = true, optional = true }
+
+# Required dependencies
+mime = "0.3.16"
+mime_guess = "2.0.5"
+
+[dev-dependencies]
+http = "1.4.0"
+
+[features]
+default = ["rustls_backend"]
+
+tracing_instrument = ["tracing/attributes"]
+typesize = ["dep:typesize", "dashmap/typesize", "small-fixed-array/typesize"]
+
+rustls_backend = ["reqwest/rustls"]
+rustls_backend_no_provider = ["reqwest/rustls-no-provider"]
+native_tls_backend = ["reqwest/native-tls"]

@@ -119,7 +119,9 @@ impl Member {
     ///
     /// [Manage Roles]: Permissions::MANAGE_ROLES
     pub async fn add_role(&self, http: &Http, role_id: RoleId, reason: Option<&str>) -> Result<()> {
-        http.add_member_role(self.guild_id.0, self.user.id.0, role_id.0, reason).await
+        http.add_member_role(self.guild_id.0, self.user.id.0, role_id.0, reason)
+            .await
+            .map_err(Into::into)
     }
 
     /// Adds one or multiple [`Role`]s to the member.
@@ -352,7 +354,9 @@ impl Member {
         role_id: RoleId,
         reason: Option<&str>,
     ) -> Result<()> {
-        http.remove_member_role(self.guild_id.0, self.user.id.0, role_id.0, reason).await
+        http.remove_member_role(self.guild_id.0, self.user.id.0, role_id.0, reason)
+            .await
+            .map_err(Into::into)
     }
 
     /// Removes one or multiple [`Role`]s from the member.
@@ -406,7 +410,7 @@ impl Member {
     ///
     /// [Ban Members]: Permissions::BAN_MEMBERS
     pub async fn unban(&self, http: &Http, reason: Option<&str>) -> Result<()> {
-        http.remove_ban(self.guild_id.0, self.user.id.0, reason).await
+        http.remove_ban(self.guild_id.0, self.user.id.0, reason).await.map_err(Into::into)
     }
 
     /// Returns the formatted URL of the member's per guild avatar, if one exists.

@@ -80,5 +80,6 @@ impl<'a> EditWebhook<'a> {
             },
             None => http.edit_webhook(webhook_id.0, &self, self.audit_log_reason).await,
         }
+        .map_err(Into::into)
     }
 }

@@ -175,5 +175,6 @@ impl<'a> EditCommand<'a> {
             Some(guild_id) => http.edit_guild_command(guild_id.0, command_id.0, &self).await,
             None => http.edit_global_command(command_id.0, &self).await,
         }
+        .map_err(Into::into)
     }
 }

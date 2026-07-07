@@ -2,13 +2,18 @@ use std::borrow::Cow;
 use std::collections::HashMap;
 use std::error::Error as StdError;
 use std::fmt;
+use std::io::Error as IoError;
 use std::sync::Arc;
 
 use reqwest::header::InvalidHeaderValue;
 use reqwest::{Error as ReqwestError, Method, Response, StatusCode};
 use serde::de::{Deserialize, Deserializer, Error as _};
+use serde_json::Error as JsonError;
+use small_fixed_array::{FixedArray, FixedString, TruncatingInto};
+#[cfg(feature = "tracing_instrument")]
+use tracing::instrument;
 
-use crate::internal::prelude::*;
+pub(crate) type Result<T, E = HttpError> = std::result::Result<T, E>;
 
 enum_number! {
     #[derive(Clone, Debug, Eq, PartialEq, Deserialize, Serialize)]
@@ -337,8 +342,72 @@ impl ErrorResponse {
 }
 
 #[derive(Debug)]
-#[non_exhaustive]
 pub enum HttpError {
+    Io(IoError),
+    Json(JsonError),
+    Request(RequestError),
+}
+
+impl From<IoError> for HttpError {
+    fn from(e: IoError) -> Self {
+        Self::Io(e)
+    }
+}
+
+impl From<JsonError> for HttpError {
+    fn from(e: JsonError) -> Self {
+        Self::Json(e)
+    }
+}
+
+impl From<RequestError> for HttpError {
+    fn from(e: RequestError) -> Self {
+        Self::Request(e)
+    }
+}
+
+impl From<ErrorResponse> for HttpError {
+    fn from(error: ErrorResponse) -> Self {
+        Self::Request(RequestError::UnsuccessfulRequest(error))
+    }
+}
+
+impl From<ReqwestError> for HttpError {
+    fn from(error: ReqwestError) -> Self {
+        Self::Request(RequestError::Reqwest(error))
+    }
+}
+
+impl From<InvalidHeaderValue> for HttpError {
+    fn from(error: InvalidHeaderValue) -> Self {
+        Self::Request(RequestError::InvalidHeader(error))
+    }
+}
+
+impl fmt::Display for HttpError {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            Self::Io(inner) => fmt::Display::fmt(&inner, f),
+            Self::Json(inner) => fmt::Display::fmt(&inner, f),
+            Self::Request(inner) => fmt::Display::fmt(&inner, f),
+        }
+    }
+}
+
+impl StdError for HttpError {
+    #[cfg_attr(feature = "tracing_instrument", instrument)]
+    fn source(&self) -> Option<&(dyn StdError + 'static)> {
+        match self {
+            Self::Io(inner) => Some(inner),
+            Self::Json(inner) => Some(inner),
+            Self::Request(inner) => Some(inner),
+        }
+    }
+}
+
+#[derive(Debug)]
+#[non_exhaustive]
+pub enum RequestError {
     /// When a non-successful status code was received for a request.
     UnsuccessfulRequest(ErrorResponse),
     /// When the decoding of a ratelimit header could not be properly decoded into an `i64` or
@@ -351,12 +420,12 @@ pub enum HttpError {
     /// Header value contains invalid input.
     InvalidHeader(InvalidHeaderValue),
     /// Reqwest's Error contain information on why sending a request failed.
-    Request(ReqwestError),
+    Reqwest(ReqwestError),
     /// When an application id was expected but missing.
     ApplicationIdMissing,
 }
 
-impl HttpError {
+impl RequestError {
     /// Returns true when the error is caused by an unsuccessful request
     #[must_use]
     pub fn is_unsuccessful_request(&self) -> bool {
@@ -379,25 +448,7 @@ impl HttpError {
     }
 }
 
-impl From<ErrorResponse> for HttpError {
-    fn from(error: ErrorResponse) -> Self {
-        Self::UnsuccessfulRequest(error)
-    }
-}
-
-impl From<ReqwestError> for HttpError {
-    fn from(error: ReqwestError) -> Self {
-        Self::Request(error)
-    }
-}
-
-impl From<InvalidHeaderValue> for HttpError {
-    fn from(error: InvalidHeaderValue) -> Self {
-        Self::InvalidHeader(error)
-    }
-}
-
-impl fmt::Display for HttpError {
+impl fmt::Display for RequestError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
             Self::UnsuccessfulRequest(e) => {
@@ -465,16 +516,16 @@ impl fmt::Display for HttpError {
             Self::RateLimitUtf8 => f.write_str("Error decoding a header from UTF-8"),
             Self::InvalidWebhook => f.write_str("Provided URL is not a valid webhook."),
             Self::InvalidHeader(_) => f.write_str("Provided value is an invalid header value."),
-            Self::Request(_) => f.write_str("Error while sending HTTP request."),
+            Self::Reqwest(_) => f.write_str("Error while sending HTTP request."),
             Self::ApplicationIdMissing => f.write_str("Application id was expected but missing."),
         }
     }
 }
 
-impl StdError for HttpError {
+impl StdError for RequestError {
     fn source(&self) -> Option<&(dyn StdError + 'static)> {
         match self {
-            Self::Request(inner) => Some(inner),
+            Self::Reqwest(inner) => Some(inner),
             _ => None,
         }
     }
@@ -485,6 +536,50 @@ impl StdError for HttpError {
 /// [Discord docs](https://docs.discord.com/developers/topics/opcodes-and-status-codes#http).
 #[derive(Debug)]
 pub struct HttpResponseCode(pub u16);
+
+/// The `http_response_codes!` macro generates `const` definitions and methods for incorporating
+/// Discord-defined [`HttpResponseCode`]s and meanings into error messages.
+///
+/// [`HttpResponseCode`]: crate::http::HttpResponseCode
+macro_rules! http_response_codes {
+    (
+        $(
+            $(#[$docs:meta])*
+            ($code:expr, $konst:ident, $message:expr);
+        )+
+    ) => {
+        impl HttpResponseCode {
+        $(
+            $(#[$docs])*
+            pub const $konst: Self = Self($code);
+        )+
+
+        /// Returns the Discord-defined meaning of this HTTP response code, if available.
+        #[must_use]
+        pub const fn to_meaning(&self) -> Option<&'static str> {
+            Self::meaning_of(self.0)
+        }
+
+        /// Returns an HTTP response code returned by the API with its Discord-defined meaning,
+        /// if available.
+        #[must_use]
+        pub const fn meaning_of(code: u16) -> Option<&'static str> {
+            match code {
+                $( $code => Some($message), )+
+                503 | 504 => HttpResponseCode::meaning_of(500),
+                _ => None
+            }
+        }
+
+        }
+
+        impl From<StatusCode> for HttpResponseCode {
+            fn from(status_code: StatusCode) -> Self {
+                Self(status_code.as_u16())
+            }
+        }
+    }
+}
 
 http_response_codes! {
     /// 200 (OK) The request completed successfully.
@@ -516,7 +611,7 @@ http_response_codes! {
 #[expect(clippy::missing_errors_doc)]
 pub fn deserialize_errors<'de, D: Deserializer<'de>>(
     deserializer: D,
-) -> StdResult<FixedArray<DiscordJsonSingleError>, D::Error> {
+) -> Result<FixedArray<DiscordJsonSingleError>, D::Error> {
     let ErrorValue::Recurse(map) = ErrorValue::deserialize(deserializer)? else {
         return Ok(FixedArray::new());
     };
@@ -572,7 +667,7 @@ fn loop_errors<'a>(
 
 #[cfg(test)]
 mod test {
-    use http_crate::response::Builder;
+    use http::response::Builder;
     use reqwest::ResponseBuilderExt;
     use serde_json::to_string;
 

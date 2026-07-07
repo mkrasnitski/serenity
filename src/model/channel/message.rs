@@ -355,6 +355,7 @@ impl Message {
             &reaction_type.into().as_data(),
         )
         .await
+        .map_err(Into::into)
     }
 
     /// Edits this message, replacing the original content with new content.
@@ -521,7 +522,9 @@ impl Message {
     ///
     /// [Add Reactions]: Permissions::ADD_REACTIONS
     pub async fn react(&self, http: &Http, reaction_type: impl Into<ReactionType>) -> Result<()> {
-        http.create_reaction(self.channel_id.0, self.id.0, &reaction_type.into().as_data()).await
+        http.create_reaction(self.channel_id.0, self.id.0, &reaction_type.into().as_data())
+            .await
+            .map_err(Into::into)
     }
 
     /// Uses Discord's inline reply to a user without pinging them.
@@ -553,15 +556,17 @@ impl Message {
     }
 
     async fn reply_(&self, http: &Http, content: Cow<'_, str>, ping_user: bool) -> Result<Message> {
-        let default_allowed_mentions = http.default_allowed_mentions.clone();
-        let allowed_mentions = default_allowed_mentions.unwrap_or_else(|| {
-            CreateAllowedMentions::new().everyone(true).all_users(true).all_roles(true)
-        });
+        let mut builder = CreateMessage::new().content(content).reference_message(self);
 
-        let builder = CreateMessage::new()
-            .content(content)
-            .reference_message(self)
-            .allowed_mentions(allowed_mentions.replied_user(ping_user));
+        if http.default_allowed_mentions.is_none() {
+            builder = builder.allowed_mentions(
+                CreateAllowedMentions::new()
+                    .everyone(true)
+                    .all_users(true)
+                    .all_roles(true)
+                    .replied_user(ping_user),
+            );
+        }
 
         self.channel_id.send_message(http, builder).await
     }
@@ -606,7 +611,7 @@ impl Message {
     ///
     /// [Pin Messages]: Permissions::PIN_MESSAGES
     pub async fn unpin(&self, http: &Http, reason: Option<&str>) -> Result<()> {
-        http.unpin_message(self.channel_id.0, self.id.0, reason).await
+        http.unpin_message(self.channel_id.0, self.id.0, reason).await.map_err(Into::into)
     }
 
     /// Ends the [`Poll`] on this message, if there is one.

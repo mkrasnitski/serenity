@@ -12,10 +12,10 @@ use reqwest::{Client, RequestBuilder as ReqwestRequestBuilder};
 #[cfg(feature = "tracing_instrument")]
 use tracing::instrument;
 
-use super::multipart::Multipart;
-use super::routing::Route;
-use super::{HttpError, LightMethod};
-use crate::internal::prelude::*;
+use crate::LightMethod;
+use crate::error::{RequestError, Result};
+use crate::multipart::Multipart;
+use crate::routing::Route;
 
 /// The [UserAgent] sent along with every request.
 ///
@@ -29,12 +29,12 @@ pub const SERENITY_USER_AGENT: &str = concat!(
 #[derive(Clone, Debug)]
 #[must_use]
 pub struct Request<'a> {
-    pub(super) body: Option<Vec<u8>>,
-    pub(super) multipart: Option<Multipart<'a>>,
-    pub(super) headers: Option<Headers>,
-    pub(super) method: LightMethod,
-    pub(super) route: Route<'a>,
-    pub(super) params: Option<&'a [(&'a str, &'a str)]>,
+    pub(crate) body: Option<Vec<u8>>,
+    pub(crate) multipart: Option<Multipart<'a>>,
+    pub(crate) headers: Option<Headers>,
+    pub(crate) method: LightMethod,
+    pub(crate) route: Route<'a>,
+    pub(crate) params: Option<&'a [(&'a str, &'a str)]>,
 }
 
 impl<'a> Request<'a> {
@@ -111,7 +111,7 @@ impl<'a> Request<'a> {
         if let Some(token) = token {
             headers.insert(
                 AUTHORIZATION,
-                HeaderValue::from_str(token).map_err(HttpError::InvalidHeader)?,
+                HeaderValue::from_str(token).map_err(RequestError::InvalidHeader)?,
             );
         }
 

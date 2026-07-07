@@ -19,6 +19,12 @@
 //! [`Client`]: crate::Client
 //! [model]: crate::model
 
+#[macro_use]
+extern crate serde;
+
+#[macro_use]
+extern crate serenity_utils;
+
 mod client;
 mod error;
 mod multipart;
@@ -26,8 +32,9 @@ mod ratelimiting;
 mod request;
 mod routing;
 
-use reqwest::Method;
+use nonmax::NonMaxU16;
 pub use reqwest::StatusCode;
+use reqwest::{Method, Url};
 use serenity_utils::Snowflake;
 
 pub use self::client::*;
@@ -82,4 +89,63 @@ pub enum MessagePagination {
     After(Snowflake),
     Around(Snowflake),
     Before(Snowflake),
+}
+
+/// The maximum number of members the bot can fetch at once
+pub const MEMBER_FETCH_LIMIT: NonMaxU16 = match NonMaxU16::new(1000) {
+    Some(m) => m,
+    None => unreachable!(),
+};
+
+/// Discord's official domains. This is used in [`parse_webhook`] and in its corresponding test.
+pub const DOMAINS: [&str; 6] = [
+    "discord.com",
+    "canary.discord.com",
+    "ptb.discord.com",
+    "discordapp.com",
+    "canary.discordapp.com",
+    "ptb.discordapp.com",
+];
+
+/// Parses the id and token from a webhook url.
+///
+/// # Examples
+///
+/// ```rust
+/// let url_str = "https://discord.com/api/webhooks/245037420704169985/ig5AO-wdVWpCBtUUMxmgsWryqgsW3DChbKYOINftJ4DCrUbnkedoYZD0VOH1QLr-S3sV";
+/// let url = url_str.parse().unwrap();
+/// let (id, token) = serenity_http::parse_webhook(&url).unwrap();
+///
+/// assert_eq!(id, 245037420704169985);
+/// assert_eq!(token, "ig5AO-wdVWpCBtUUMxmgsWryqgsW3DChbKYOINftJ4DCrUbnkedoYZD0VOH1QLr-S3sV");
+/// ```
+#[must_use]
+pub fn parse_webhook(url: &Url) -> Option<(Snowflake, &str)> {
+    let (webhook_id, token) = url.path().strip_prefix("/api/webhooks/")?.split_once('/')?;
+    if !["http", "https"].contains(&url.scheme())
+        || !DOMAINS.contains(&url.domain()?)
+        || !(17..=20).contains(&webhook_id.len())
+        || !(60..=68).contains(&token.len())
+    {
+        return None;
+    }
+    Some((webhook_id.parse().ok()?, token))
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_webhook_parser() {
+        for domain in DOMAINS {
+            let url = format!("https://{domain}/api/webhooks/245037420704169985/ig5AO-wdVWpCBtUUMxmgsWryqgsW3DChbKYOINftJ4DCrUbnkedoYZD0VOH1QLr-S3sV").parse().unwrap();
+            let (id, token) = parse_webhook(&url).unwrap();
+            assert_eq!(id, 245037420704169985);
+            assert_eq!(
+                token,
+                "ig5AO-wdVWpCBtUUMxmgsWryqgsW3DChbKYOINftJ4DCrUbnkedoYZD0VOH1QLr-S3sV"
+            );
+        }
+    }
 }

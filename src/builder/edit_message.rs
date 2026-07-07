@@ -1,5 +1,7 @@
 use std::borrow::Cow;
 
+use serenity_utils::AllowedMentions;
+
 use super::{
     CreateAllowedMentions,
     CreateAttachment,
@@ -40,7 +42,7 @@ pub struct EditMessage<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     flags: Option<MessageFlags>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    allowed_mentions: Option<CreateAllowedMentions<'a>>,
+    allowed_mentions: Option<AllowedMentions>,
     #[serde(skip_serializing_if = "Option::is_none")]
     components: Option<Cow<'a, [CreateComponent<'a>]>>,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -127,7 +129,7 @@ impl<'a> EditMessage<'a> {
 
     /// Set the allowed mentions for the message.
     pub fn allowed_mentions(mut self, allowed_mentions: CreateAllowedMentions<'a>) -> Self {
-        self.allowed_mentions = Some(allowed_mentions);
+        self.allowed_mentions = Some(allowed_mentions.into());
         self
     }
 
@@ -249,6 +251,6 @@ impl<'a> EditMessage<'a> {
             self.allowed_mentions.clone_from(&http.default_allowed_mentions);
         }
 
-        http.edit_message(channel_id.0, message_id.0, &self, files).await
+        http.edit_message(channel_id.0, message_id.0, &self, files).await.map_err(Into::into)
     }
 }

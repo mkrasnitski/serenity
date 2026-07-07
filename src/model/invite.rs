@@ -116,7 +116,7 @@ impl Invite {
     /// [Manage Guild]: Permissions::MANAGE_GUILD
     /// [Manage Channels]: Permissions::MANAGE_CHANNELS
     pub async fn delete(&self, http: &Http, reason: Option<&str>) -> Result<Invite> {
-        http.delete_invite(&self.code, reason).await
+        http.delete_invite(&self.code, reason).await.map_err(Into::into)
     }
 
     /// Gets information about an invite.
@@ -140,7 +140,7 @@ impl Invite {
         member_counts: bool,
         event_id: Option<ScheduledEventId>,
     ) -> Result<Invite> {
-        http.get_invite(code, member_counts, event_id.map(|id| id.0)).await
+        http.get_invite(code, member_counts, event_id.map(|id| id.0)).await.map_err(Into::into)
     }
 
     /// Returns a URL to use for the invite.

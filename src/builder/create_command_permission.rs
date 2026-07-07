@@ -42,7 +42,9 @@ impl<'a> EditCommandPermissions<'a> {
         guild_id: GuildId,
         command_id: CommandId,
     ) -> Result<CommandPermissions> {
-        http.edit_guild_command_permissions(guild_id.0, command_id.0, &self).await
+        http.edit_guild_command_permissions(guild_id.0, command_id.0, &self)
+            .await
+            .map_err(Into::into)
     }
 }
 

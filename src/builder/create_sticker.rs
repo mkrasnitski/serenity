@@ -86,6 +86,8 @@ impl<'a> CreateSticker<'a> {
             ("description".into(), self.description),
         ];
 
-        http.create_sticker(guild_id.0, map, self.file.into(), self.audit_log_reason).await
+        http.create_sticker(guild_id.0, map, self.file.into(), self.audit_log_reason)
+            .await
+            .map_err(Into::into)
     }
 }

@@ -88,6 +88,6 @@ impl<'a> EditProfile<'a> {
     /// if there is an error in deserializing the API response.
     #[cfg(feature = "http")]
     pub async fn execute(self, http: &Http) -> Result<CurrentUser> {
-        http.edit_profile(&self).await
+        http.edit_profile(&self).await.map_err(Into::into)
     }
 }

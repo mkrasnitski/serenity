@@ -120,6 +120,7 @@ impl<'a> EditAutoModRule<'a> {
             // TODO: Enforce these fields (maybe with a separate CreateAutoModRule builder).
             None => http.create_automod_rule(guild_id.0, &self, self.audit_log_reason).await,
         }
+        .map_err(Into::into)
     }
 }
 

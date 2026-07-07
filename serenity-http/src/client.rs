@@ -7,30 +7,29 @@ use std::hash::Hash;
 use std::sync::atomic::{AtomicU64, Ordering};
 
 use arrayvec::ArrayVec;
+use extract_map::{ExtractKey, ExtractMap};
 use nonmax::{NonMaxU8, NonMaxU16};
 use percent_encoding::{NON_ALPHANUMERIC, utf8_percent_encode};
-#[cfg(feature = "utils")]
-use reqwest::Url;
 use reqwest::header::{HeaderMap as Headers, HeaderValue};
-use reqwest::{Client, ClientBuilder, Response as ReqwestResponse, StatusCode};
+use reqwest::{Client, ClientBuilder, Response as ReqwestResponse, StatusCode, Url};
 use serde::de::DeserializeOwned;
 use serde::ser::{Serialize, SerializeSeq as _, Serializer};
-use serde_json::{from_value, to_string, to_vec};
+use serde_json::{Value, from_value, to_string, to_vec};
+use serenity_utils::secrets::Token;
 use serenity_utils::timestamp::Timestamp;
-use serenity_utils::{AttachmentData, Snowflake};
+use serenity_utils::{AllowedMentions, AttachmentData, Snowflake};
+use small_fixed_array::FixedString;
 use to_arraystring::ToArrayString as _;
 #[cfg(feature = "tracing_instrument")]
 use tracing::instrument;
 use tracing::{debug, warn};
 
-use super::multipart::{Multipart, MultipartUpload};
-use super::ratelimiting::Ratelimiter;
-use super::request::Request;
-use super::routing::Route;
-use super::{ErrorResponse, HttpError, LightMethod, MessagePagination, Pagination};
-use crate::builder::CreateAllowedMentions;
-use crate::constants;
-use crate::model::prelude::*;
+use crate::error::{ErrorResponse, HttpError, RequestError, Result};
+use crate::multipart::{Multipart, MultipartUpload};
+use crate::ratelimiting::Ratelimiter;
+use crate::request::Request;
+use crate::routing::Route;
+use crate::{LightMethod, MessagePagination, Pagination};
 
 // NOTE: This cannot be passed in from outside, due to `Cell` being !Send.
 struct SerializeIter<I>(Cell<Option<I>>);
@@ -65,7 +64,7 @@ where
 /// Create an instance of [`Http`] with a proxy and rate limiter disabled
 ///
 /// ```rust
-/// # use serenity::http::HttpBuilder;
+/// # use serenity_http::HttpBuilder;
 /// # fn run() {
 /// let http = HttpBuilder::without_token()
 ///     .proxy("http://127.0.0.1:3000")
@@ -81,7 +80,7 @@ pub struct HttpBuilder {
     token: Option<Token>,
     proxy: Option<FixedString<u16>>,
     application_id: Option<Snowflake>,
-    default_allowed_mentions: Option<CreateAllowedMentions<'static>>,
+    default_allowed_mentions: Option<AllowedMentions>,
 }
 
 impl HttpBuilder {
@@ -174,14 +173,11 @@ impl HttpBuilder {
         self
     }
 
-    /// Sets the [`CreateAllowedMentions`] used by default for each request that would use it.
+    /// Sets the [`AllowedMentions`] used by default for each request that would use it.
     ///
     /// This only takes effect if you are calling through the model or builder methods, not directly
     /// calling [`Http`] methods, as [`Http`] is simply used as a convenient storage for these.
-    pub fn default_allowed_mentions(
-        mut self,
-        allowed_mentions: CreateAllowedMentions<'static>,
-    ) -> Self {
+    pub fn default_allowed_mentions(mut self, allowed_mentions: AllowedMentions) -> Self {
         self.default_allowed_mentions = Some(allowed_mentions);
         self
     }
@@ -232,12 +228,12 @@ fn reason_into_header(reason: &str) -> Headers {
 /// [`Error::Http`] or [`Error::Json`].
 #[derive(Debug)]
 pub struct Http {
-    pub(crate) client: Client,
     pub ratelimiter: Option<Ratelimiter>,
     pub proxy: Option<FixedString<u16>>,
+    client: Client,
     token: Option<Token>,
     application_id: AtomicU64,
-    pub default_allowed_mentions: Option<CreateAllowedMentions<'static>>,
+    pub default_allowed_mentions: Option<AllowedMentions>,
 }
 
 impl Http {
@@ -262,7 +258,7 @@ impl Http {
     }
 
     fn try_application_id(&self) -> Result<Snowflake> {
-        self.application_id().ok_or_else(|| HttpError::ApplicationIdMissing.into())
+        self.application_id().ok_or_else(|| RequestError::ApplicationIdMissing.into())
     }
 
     pub fn set_application_id(&self, application_id: Snowflake) {
@@ -2396,7 +2392,9 @@ impl Http {
 
         match result {
             Ok(ban) => Ok(Some(ban)),
-            Err(Error::Http(ref err)) if err.status_code() == Some(StatusCode::NOT_FOUND) => {
+            Err(HttpError::Request(ref err))
+                if err.status_code() == Some(StatusCode::NOT_FOUND) =>
+            {
                 Ok(None)
             },
             Err(e) => Err(e),
@@ -3075,7 +3073,7 @@ impl Http {
             params.push(("user_id", user_id_str.as_str()));
         }
         if let Some(sku_ids) = sku_ids {
-            sku_ids_str = join_to_string(',', sku_ids);
+            sku_ids_str = sku_ids.iter().map(ToString::to_string).collect::<Vec<_>>().join(",");
             params.push(("sku_ids", &sku_ids_str));
         }
         if let Some(before) = before {
@@ -3428,7 +3426,7 @@ impl Http {
         let (limit_str, after_str);
         let mut params = ArrayVec::<_, 2>::new();
 
-        limit_str = limit.unwrap_or(constants::MEMBER_FETCH_LIMIT).get().to_arraystring();
+        limit_str = limit.unwrap_or(crate::MEMBER_FETCH_LIMIT).get().to_arraystring();
         params.push(("limit", limit_str.as_str()));
 
         if let Some(after) = after {
@@ -3994,7 +3992,7 @@ impl Http {
         channel_id: Snowflake,
         message_id: Snowflake,
         emoji: &str,
-        reaction_type: Option<ReactionTypes>,
+        reaction_type: Option<u8>,
         limit: Option<NonMaxU8>,
         after: Option<Snowflake>,
     ) -> Result<Vec<T>> {
@@ -4002,7 +4000,7 @@ impl Http {
         let mut params = ArrayVec::<_, 3>::new();
 
         if let Some(reaction_type) = reaction_type {
-            type_str = reaction_type.0.to_arraystring();
+            type_str = reaction_type.to_arraystring();
             params.push(("type", type_str.as_str()));
         }
 
@@ -4229,11 +4227,9 @@ impl Http {
     /// Retrieves a webhook given its url.
     ///
     /// This method does _not_ require authentication
-    #[cfg(feature = "utils")]
     pub async fn get_webhook_from_url<T: DeserializeOwned>(&self, url: &str) -> Result<T> {
-        let url = Url::parse(url)?;
-        let (webhook_id, token) =
-            crate::utils::parse_webhook(&url).ok_or(HttpError::InvalidWebhook)?;
+        let url = Url::parse(url).map_err(|_| RequestError::InvalidWebhook)?;
+        let (webhook_id, token) = crate::parse_webhook(&url).ok_or(RequestError::InvalidWebhook)?;
         self.fire(Request {
             body: None,
             multipart: None,
@@ -4388,7 +4384,7 @@ impl Http {
         query: &str,
         limit: Option<NonMaxU16>,
     ) -> Result<Vec<T>> {
-        let limit_str = limit.unwrap_or(constants::MEMBER_FETCH_LIMIT).get().to_arraystring();
+        let limit_str = limit.unwrap_or(crate::MEMBER_FETCH_LIMIT).get().to_arraystring();
         let mut value: Value = self
             .fire(Request {
                 body: None,
@@ -4675,7 +4671,7 @@ impl Http {
         if response.status().is_success() {
             Ok(response)
         } else {
-            Err(Error::Http(HttpError::UnsuccessfulRequest(
+            Err(HttpError::Request(RequestError::UnsuccessfulRequest(
                 ErrorResponse::from_response(response, method).await,
             )))
         }
@@ -4685,7 +4681,7 @@ impl Http {
     ///
     /// This is a function that performs a light amount of work and returns the unit type, so it's
     /// called "self.wind" to denote that it's lightweight.
-    pub(super) async fn wind(&self, req: Request<'_>) -> Result<()> {
+    async fn wind(&self, req: Request<'_>) -> Result<()> {
         let route = req.route;
         let method = req.method.reqwest_method();
         let response = self.request(req).await?;
@@ -4703,7 +4699,7 @@ impl Http {
         }
 
         debug!("Unsuccessful response: {response:?}");
-        Err(Error::Http(HttpError::UnsuccessfulRequest(
+        Err(HttpError::Request(RequestError::UnsuccessfulRequest(
             ErrorResponse::from_response(response, method).await,
         )))
     }

@@ -43,15 +43,17 @@ use std::time::{Duration, SystemTime};
 use dashmap::DashMap;
 use reqwest::header::HeaderMap;
 use reqwest::{Client, Response, StatusCode};
+use serenity_utils::secrets::Token;
 use tokio::sync::Mutex;
 use tokio::time::sleep;
 use tracing::debug;
 #[cfg(feature = "tracing_instrument")]
 use tracing::instrument;
 
-pub use super::routing::RatelimitingBucket;
-use super::{HttpError, LightMethod, Request};
-use crate::internal::prelude::*;
+use crate::LightMethod;
+use crate::error::{RequestError, Result};
+use crate::request::Request;
+use crate::routing::RatelimitingBucket;
 
 /// Passed to the [`Ratelimiter::set_ratelimit_callback`] callback. If using Client, that callback
 /// is initialized to call the `EventHandler::ratelimit()` method.
@@ -142,10 +144,9 @@ impl Ratelimiter {
     /// View the `reset` time of the route for `ChannelsId(7)`:
     ///
     /// ```rust,no_run
-    /// use serenity::http::Route;
-    /// # use serenity_utils::Snowflake;
-    /// # use serenity::http::Http;
-    /// # use serenity::model::prelude::*;
+    /// use serenity_http::Route;
+    /// use serenity_utils::Snowflake;
+    /// # use serenity_http::Http;
     ///
     /// # async fn run() -> Result<(), Box<dyn std::error::Error>> {
     /// # let http: Http = unimplemented!();
@@ -431,26 +432,19 @@ impl Default for Ratelimit {
 fn parse_header<T: FromStr>(headers: &HeaderMap, header: &str) -> Result<Option<T>> {
     let Some(header) = headers.get(header) else { return Ok(None) };
 
-    let unicode =
-        str::from_utf8(header.as_bytes()).map_err(|_| Error::from(HttpError::RateLimitUtf8))?;
+    let unicode = str::from_utf8(header.as_bytes()).map_err(|_| RequestError::RateLimitUtf8)?;
 
-    let num = unicode.parse().map_err(|_| Error::from(HttpError::RateLimitI64F64))?;
+    let num = unicode.parse().map_err(|_| RequestError::RateLimitI64F64)?;
 
     Ok(Some(num))
 }
 
 #[cfg(test)]
 mod tests {
-    use std::error::Error as StdError;
-    use std::result::Result as StdResult;
-
     use reqwest::header::{HeaderMap, HeaderName, HeaderValue};
 
     use super::parse_header;
-    use crate::error::Error;
-    use crate::http::HttpError;
-
-    type Result<T> = StdResult<T, Box<dyn StdError>>;
+    use crate::error::{HttpError, RequestError, Result};
 
     fn headers() -> HeaderMap {
         let pairs = &[
@@ -493,12 +487,12 @@ mod tests {
         let headers = headers();
 
         assert!(matches!(
-            parse_header::<i64>(&headers, "x-bad-num").unwrap_err(),
-            Error::Http(HttpError::RateLimitI64F64)
+            parse_header::<i64>(&headers, "x-bad-num"),
+            Err(HttpError::Request(RequestError::RateLimitI64F64))
         ));
         assert!(matches!(
-            parse_header::<i64>(&headers, "x-bad-unicode").unwrap_err(),
-            Error::Http(HttpError::RateLimitUtf8)
+            parse_header::<i64>(&headers, "x-bad-unicode"),
+            Err(HttpError::Request(RequestError::RateLimitUtf8))
         ));
     }
 }

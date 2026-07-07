@@ -1,17 +1,10 @@
 use std::borrow::Cow;
 
 use arrayvec::ArrayVec;
-use serde::{Deserialize, Serialize};
+use serde::Serialize;
+use serenity_utils::{AllowedMentions, ParseValue};
 
 use crate::model::prelude::*;
-
-#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, Deserialize, Serialize)]
-#[serde(rename_all = "lowercase")]
-enum ParseValue {
-    Everyone,
-    Users,
-    Roles,
-}
 
 enum ParseAction {
     Remove,
@@ -169,5 +162,17 @@ impl<'a> CreateAllowedMentions<'a> {
     pub fn replied_user(mut self, mention_user: bool) -> Self {
         self.replied_user = Some(mention_user);
         self
+    }
+}
+
+impl From<CreateAllowedMentions<'_>> for AllowedMentions {
+    fn from(val: CreateAllowedMentions<'_>) -> Self {
+        AllowedMentions {
+            parse: val.parse,
+            ids: FixedArray::from_vec_trunc(
+                val.users.iter().map(|id| id.0).chain(val.roles.iter().map(|id| id.0)).collect(),
+            ),
+            replied_user: val.replied_user,
+        }
     }
 }

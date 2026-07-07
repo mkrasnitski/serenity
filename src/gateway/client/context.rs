@@ -318,7 +318,7 @@ impl Context {
     ///
     /// Returns an error if the Application ID is not known.
     pub async fn get_application_emojis(&self) -> Result<Vec<Emoji>> {
-        self.http.get_application_emojis().await
+        self.http.get_application_emojis().await.map_err(Into::into)
     }
 
     /// Gets information about an application emoji.
@@ -327,7 +327,7 @@ impl Context {
     ///
     /// Returns an error if the emoji does not exist.
     pub async fn get_application_emoji(&self, emoji_id: EmojiId) -> Result<Emoji> {
-        self.http.get_application_emoji(emoji_id.0).await
+        self.http.get_application_emoji(emoji_id.0).await.map_err(Into::into)
     }
 
     /// Creates an application emoji with a name and base64-encoded image.
@@ -348,7 +348,7 @@ impl Context {
             image,
         };
 
-        self.http.create_application_emoji(&body).await
+        self.http.create_application_emoji(&body).await.map_err(Into::into)
     }
 
     /// Changes the name of an application emoji.
@@ -366,7 +366,7 @@ impl Context {
             name,
         };
 
-        self.http.edit_application_emoji(emoji_id.0, &body).await
+        self.http.edit_application_emoji(emoji_id.0, &body).await.map_err(Into::into)
     }
 
     /// Deletes an application emoji.
@@ -375,6 +375,6 @@ impl Context {
     ///
     /// Returns an error if the emoji does not exist.
     pub async fn delete_application_emoji(&self, emoji_id: EmojiId) -> Result<()> {
-        self.http.delete_application_emoji(emoji_id.0).await
+        self.http.delete_application_emoji(emoji_id.0).await.map_err(Into::into)
     }
 }

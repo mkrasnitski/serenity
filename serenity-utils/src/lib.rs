@@ -9,7 +9,9 @@ pub mod timestamp;
 use std::borrow::Cow;
 use std::path::Path;
 
+use arrayvec::ArrayVec;
 use bytes::Bytes;
+use small_fixed_array::FixedArray;
 use tokio::fs::File;
 
 pub use self::snowflake::*;
@@ -25,6 +27,22 @@ pub enum AttachmentDataKind<'a> {
     Bytes(Bytes),
     File(&'a File),
     Path(&'a Path),
+}
+
+#[derive(Clone, Debug, Default, Serialize)]
+#[must_use]
+pub struct AllowedMentions {
+    pub parse: ArrayVec<ParseValue, 3>,
+    pub ids: FixedArray<Snowflake>,
+    pub replied_user: Option<bool>,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, Deserialize, Serialize)]
+#[serde(rename_all = "lowercase")]
+pub enum ParseValue {
+    Everyone,
+    Users,
+    Roles,
 }
 
 pub fn spawn_named<F, T>(_name: &str, future: F) -> tokio::task::JoinHandle<T>

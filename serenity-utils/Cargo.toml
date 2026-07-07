@@ -12,10 +12,12 @@ rust-version.workspace = true
 [dependencies]
 # Workspace dependencies
 aformat = { workspace = true }
+arrayvec = { workspace = true }
 bytes = { workspace = true }
 nonmax = { workspace = true }
 serde = { workspace = true }
 serde_json = { workspace = true }
+small-fixed-array = { workspace = true }
 to-arraystring = { workspace = true }
 tokio = { workspace = true }
 typesize = { workspace = true, optional = true }

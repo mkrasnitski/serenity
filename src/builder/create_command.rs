@@ -494,6 +494,7 @@ impl<'a> CreateCommand<'a> {
             Some(guild_id) => http.create_guild_command(guild_id.0, &self).await,
             None => http.create_global_command(&self).await,
         }
+        .map_err(Into::into)
     }
 }
 

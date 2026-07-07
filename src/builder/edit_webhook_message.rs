@@ -1,5 +1,7 @@
 use std::borrow::Cow;
 
+use serenity_utils::AllowedMentions;
+
 use super::{
     CreateAllowedMentions,
     CreateAttachment,
@@ -25,7 +27,7 @@ pub struct EditWebhookMessage<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     flags: Option<MessageFlags>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    allowed_mentions: Option<CreateAllowedMentions<'a>>,
+    allowed_mentions: Option<AllowedMentions>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub(crate) components: Option<Cow<'a, [CreateComponent<'a>]>>,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -98,7 +100,7 @@ impl<'a> EditWebhookMessage<'a> {
 
     /// Set the allowed mentions for the message.
     pub fn allowed_mentions(mut self, allowed_mentions: CreateAllowedMentions<'a>) -> Self {
-        self.allowed_mentions = Some(allowed_mentions);
+        self.allowed_mentions = Some(allowed_mentions.into());
         self
     }
 
@@ -195,5 +197,6 @@ impl<'a> EditWebhookMessage<'a> {
             files,
         )
         .await
+        .map_err(Into::into)
     }
 }

@@ -21,6 +21,12 @@ enum RatelimitingKind {
     Path,
 }
 
+macro_rules! status {
+    ($e:expr) => {
+        concat!("https://status.discord.com/api/v2", $e)
+    };
+}
+
 /// A macro for defining routes as well as the type of ratelimiting they perform. Takes as input a
 /// list of route definitions, and generates a definition for the `Route` enum and implements
 /// methods on it.

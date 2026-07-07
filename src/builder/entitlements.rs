@@ -37,7 +37,7 @@ impl CreateTestEntitlement {
     /// May error due to an invalid response from discord, or network error.
     #[cfg(feature = "http")]
     pub async fn execute(self, http: &Http) -> Result<Entitlement> {
-        http.create_test_entitlement(&self).await
+        http.create_test_entitlement(&self).await.map_err(Into::into)
     }
 }
 
@@ -135,5 +135,6 @@ impl<'a> GetEntitlements<'a> {
             self.exclude_ended,
         )
         .await
+        .map_err(Into::into)
     }
 }

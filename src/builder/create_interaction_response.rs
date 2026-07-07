@@ -1,6 +1,8 @@
 use std::borrow::Cow;
 use std::collections::HashMap;
 
+use serenity_utils::AllowedMentions;
+
 use super::create_poll::Ready;
 use super::{
     CreateAllowedMentions,
@@ -144,7 +146,9 @@ impl CreateInteractionResponse<'_> {
             msg.allowed_mentions.clone_from(&http.default_allowed_mentions);
         }
 
-        http.create_interaction_response(interaction_id.0, interaction_token, &self, files).await
+        http.create_interaction_response(interaction_id.0, interaction_token, &self, files)
+            .await
+            .map_err(Into::into)
     }
 }
 
@@ -159,7 +163,7 @@ pub struct CreateInteractionResponseMessage<'a> {
     #[serde(skip_serializing_if = "Option::is_none")]
     embeds: Option<Cow<'a, [CreateEmbed<'a>]>>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    allowed_mentions: Option<CreateAllowedMentions<'a>>,
+    allowed_mentions: Option<AllowedMentions>,
     #[serde(skip_serializing_if = "Option::is_none")]
     flags: Option<MessageFlags>,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -251,7 +255,7 @@ impl<'a> CreateInteractionResponseMessage<'a> {
 
     /// Set the allowed mentions for the message.
     pub fn allowed_mentions(mut self, allowed_mentions: CreateAllowedMentions<'a>) -> Self {
-        self.allowed_mentions = Some(allowed_mentions);
+        self.allowed_mentions = Some(allowed_mentions.into());
         self
     }
 
@@ -420,6 +424,7 @@ impl<'a> CreateAutocompleteResponse<'a> {
     ) -> Result<()> {
         http.create_interaction_response(interaction_id.0, interaction_token, &self, Vec::new())
             .await
+            .map_err(Into::into)
     }
 }
 

@@ -1,5 +1,7 @@
 use std::borrow::Cow;
 
+use serenity_utils::AllowedMentions;
+
 use super::create_poll::Ready;
 use super::{
     CreateAllowedMentions,
@@ -57,7 +59,7 @@ pub struct CreateMessage<'a> {
     tts: bool,
     embeds: Cow<'a, [CreateEmbed<'a>]>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    allowed_mentions: Option<CreateAllowedMentions<'a>>,
+    allowed_mentions: Option<AllowedMentions>,
     #[serde(skip_serializing_if = "Option::is_none")]
     message_reference: Option<MessageReference>,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -171,7 +173,7 @@ impl<'a> CreateMessage<'a> {
 
     /// Set the allowed mentions for the message.
     pub fn allowed_mentions(mut self, allowed_mentions: CreateAllowedMentions<'a>) -> Self {
-        self.allowed_mentions = Some(allowed_mentions);
+        self.allowed_mentions = Some(allowed_mentions.into());
         self
     }
 
@@ -284,6 +286,6 @@ impl<'a> CreateMessage<'a> {
             self.allowed_mentions.clone_from(&http.default_allowed_mentions);
         }
 
-        http.send_message(channel_id.0, files, &self).await
+        http.send_message(channel_id.0, files, &self).await.map_err(Into::into)
     }
 }

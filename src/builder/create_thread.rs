@@ -113,5 +113,6 @@ impl<'a> CreateThread<'a> {
             },
             None => http.create_thread(channel_id.0, &self, self.audit_log_reason).await,
         }
+        .map_err(Into::into)
     }
 }

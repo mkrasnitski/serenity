@@ -140,6 +140,7 @@ impl Reaction {
             &self.emoji.as_data(),
         )
         .await
+        .map_err(Into::into)
     }
 
     /// Retrieves the [`Message`] associated with this reaction.
@@ -211,11 +212,12 @@ impl Reaction {
             self.channel_id.0,
             self.message_id.0,
             &self.emoji.as_data(),
-            Some(self.reaction_type),
+            Some(self.reaction_type.0),
             limit,
             after.map(|id| id.0),
         )
         .await
+        .map_err(Into::into)
     }
 }
 

@@ -48,7 +48,7 @@ impl GuildId {
     ///
     /// [Manage Guild]: Permissions::MANAGE_GUILD
     pub async fn automod_rules(self, http: &Http) -> Result<Vec<AutoModRule>> {
-        http.get_automod_rules(self.0).await
+        http.get_automod_rules(self.0).await.map_err(Into::into)
     }
 
     /// Gets an [`AutoModRule`] of this guild by its ID via HTTP.
@@ -61,7 +61,7 @@ impl GuildId {
     ///
     /// [Manage Guild]: Permissions::MANAGE_GUILD
     pub async fn automod_rule(self, http: &Http, rule_id: RuleId) -> Result<AutoModRule> {
-        http.get_automod_rule(self.0, rule_id.0).await
+        http.get_automod_rule(self.0, rule_id.0).await.map_err(Into::into)
     }
 
     /// Creates an [`AutoModRule`] in the guild.
@@ -146,7 +146,7 @@ impl GuildId {
         rule_id: RuleId,
         reason: Option<&str>,
     ) -> Result<()> {
-        http.delete_automod_rule(self.0, rule_id.0, reason).await
+        http.delete_automod_rule(self.0, rule_id.0, reason).await.map_err(Into::into)
     }
 
     /// Adds a [`User`] to this guild with a valid OAuth2 access token.
@@ -203,7 +203,7 @@ impl GuildId {
         dms: u32,
         reason: Option<&str>,
     ) -> Result<()> {
-        http.ban_user(self.0, user.0, dms, reason).await
+        http.ban_user(self.0, user.0, dms, reason).await.map_err(Into::into)
     }
 
     /// Bans multiple users from the guild, returning the users that were and weren't banned, and
@@ -234,7 +234,7 @@ impl GuildId {
             delete_message_seconds,
         };
 
-        http.bulk_ban_users(self.0, &map, reason).await
+        http.bulk_ban_users(self.0, &map, reason).await.map_err(Into::into)
     }
 
     /// Gets a list of the guild's bans, with additional options and filtering. See
@@ -253,7 +253,7 @@ impl GuildId {
         target: Option<UserPagination>,
         limit: Option<NonMaxU16>,
     ) -> Result<Vec<Ban>> {
-        http.get_bans(self.0, target.map(Into::into), limit).await
+        http.get_bans(self.0, target.map(Into::into), limit).await.map_err(Into::into)
     }
 
     /// Gets a user's ban from the guild.
@@ -268,7 +268,7 @@ impl GuildId {
     /// [Ban Members]: Permissions::BAN_MEMBERS
     #[inline]
     pub async fn get_ban(self, http: &Http, user_id: UserId) -> Result<Option<Ban>> {
-        http.get_ban(self.0, user_id.0).await
+        http.get_ban(self.0, user_id.0).await.map_err(Into::into)
     }
 
     /// Gets a list of the guild's audit log entries
@@ -299,6 +299,7 @@ impl GuildId {
             limit,
         )
         .await
+        .map_err(Into::into)
     }
 
     /// Gets all of the guild's channels over the REST API.
@@ -307,7 +308,7 @@ impl GuildId {
     ///
     /// Returns [`Error::Http`] if the current user is not in the guild.
     pub async fn channels(self, http: &Http) -> Result<ExtractMap<ChannelId, GuildChannel>> {
-        http.get_channels(self.0).await
+        http.get_channels(self.0).await.map_err(Into::into)
     }
 
     /// Creates a [`GuildChannel`] in the the guild.
@@ -392,7 +393,7 @@ impl GuildId {
             roles,
         };
 
-        http.create_emoji(self.0, &body, reason).await
+        http.create_emoji(self.0, &body, reason).await.map_err(Into::into)
     }
 
     /// Creates an integration for the guild.
@@ -423,7 +424,9 @@ impl GuildId {
             kind,
         };
 
-        http.create_guild_integration(self.0, integration_id.0, &body, reason).await
+        http.create_guild_integration(self.0, integration_id.0, &body, reason)
+            .await
+            .map_err(Into::into)
     }
 
     /// Creates a new role in the guild with the data set, if any.
@@ -482,7 +485,7 @@ impl GuildId {
     ///
     /// Returns [`Error::Http`] if the current user is not the owner of the guild.
     pub async fn delete(self, http: &Http) -> Result<()> {
-        http.delete_guild(self.0).await
+        http.delete_guild(self.0).await.map_err(Into::into)
     }
 
     /// Deletes an [`Emoji`] from the guild.
@@ -504,7 +507,7 @@ impl GuildId {
         emoji_id: EmojiId,
         reason: Option<&str>,
     ) -> Result<()> {
-        http.delete_emoji(self.0, emoji_id.0, reason).await
+        http.delete_emoji(self.0, emoji_id.0, reason).await.map_err(Into::into)
     }
 
     /// Deletes an integration by Id from the guild.
@@ -523,7 +526,7 @@ impl GuildId {
         integration_id: IntegrationId,
         reason: Option<&str>,
     ) -> Result<()> {
-        http.delete_guild_integration(self.0, integration_id.0, reason).await
+        http.delete_guild_integration(self.0, integration_id.0, reason).await.map_err(Into::into)
     }
 
     /// Deletes a [`Role`] by Id from the guild.
@@ -544,7 +547,7 @@ impl GuildId {
         role_id: RoleId,
         reason: Option<&str>,
     ) -> Result<()> {
-        http.delete_role(self.0, role_id.0, reason).await
+        http.delete_role(self.0, role_id.0, reason).await.map_err(Into::into)
     }
 
     /// Deletes a specified scheduled event in the guild.
@@ -563,7 +566,7 @@ impl GuildId {
         http: &Http,
         event_id: ScheduledEventId,
     ) -> Result<()> {
-        http.delete_scheduled_event(self.0, event_id.0).await
+        http.delete_scheduled_event(self.0, event_id.0).await.map_err(Into::into)
     }
 
     /// Deletes a [`Sticker`] by id from the guild.
@@ -585,7 +588,7 @@ impl GuildId {
         sticker_id: StickerId,
         reason: Option<&str>,
     ) -> Result<()> {
-        http.delete_sticker(self.0, sticker_id.0, reason).await
+        http.delete_sticker(self.0, sticker_id.0, reason).await.map_err(Into::into)
     }
 
     /// Edits the current guild with new data where specified.
@@ -637,7 +640,7 @@ impl GuildId {
             roles,
         };
 
-        http.edit_emoji(self.0, emoji_id.0, &map, reason).await
+        http.edit_emoji(self.0, emoji_id.0, &map, reason).await.map_err(Into::into)
     }
 
     /// Edits the properties a guild member, such as muting or nicknaming them. Returns the new
@@ -703,7 +706,7 @@ impl GuildId {
             level: mfa_level,
         };
 
-        http.edit_guild_mfa_level(self.0, &map, reason).await
+        http.edit_guild_mfa_level(self.0, &map, reason).await.map_err(Into::into)
     }
 
     /// Edits the properties of the bot's member.
@@ -870,7 +873,7 @@ impl GuildId {
             position,
         });
 
-        http.edit_role_positions(self.0, iter, reason).await
+        http.edit_role_positions(self.0, iter, reason).await.map_err(Into::into)
     }
 
     /// Edits the guild's welcome screen.
@@ -914,7 +917,7 @@ impl GuildId {
     /// Returns [`Error::Http`] if the current user is not in the guild, or if the role does not
     /// exist.
     pub async fn role(self, http: &Http, role_id: RoleId) -> Result<Role> {
-        http.get_guild_role(self.0, role_id.0).await
+        http.get_guild_role(self.0, role_id.0).await.map_err(Into::into)
     }
 
     /// Gets all of the guild's roles over the REST API.
@@ -924,7 +927,7 @@ impl GuildId {
     /// Returns [`Error::Http`] if the current user is not in
     /// the guild.
     pub async fn roles(self, http: &Http) -> Result<ExtractMap<RoleId, Role>> {
-        http.get_guild_roles(self.0).await
+        http.get_guild_roles(self.0).await.map_err(Into::into)
     }
 
     /// Gets the default permission role (@everyone) from the guild.
@@ -957,7 +960,7 @@ impl GuildId {
             }
         }
 
-        cache_http.http().get_guild(self.0).await
+        cache_http.http().get_guild(self.0).await.map_err(Into::into)
     }
 
     /// Requests [`PartialGuild`] over REST API with counts.
@@ -969,7 +972,7 @@ impl GuildId {
     ///
     /// Returns an [`Error::Http`] if the current user is not in the guild.
     pub async fn to_partial_guild_with_counts(self, http: &Http) -> Result<PartialGuild> {
-        http.get_guild_with_counts(self.0).await
+        http.get_guild_with_counts(self.0).await.map_err(Into::into)
     }
 
     /// Gets all [`Emoji`]s of this guild via HTTP.
@@ -978,7 +981,7 @@ impl GuildId {
     ///
     /// Returns an [`Error::Http`] if the guild is unavailable.
     pub async fn emojis(self, http: &Http) -> Result<Vec<Emoji>> {
-        http.get_emojis(self.0).await
+        http.get_emojis(self.0).await.map_err(Into::into)
     }
 
     /// Gets an [`Emoji`] of this guild by its ID via HTTP.
@@ -987,7 +990,7 @@ impl GuildId {
     ///
     /// Returns an [`Error::Http`] if an emoji with that id does not exist.
     pub async fn emoji(self, http: &Http, emoji_id: EmojiId) -> Result<Emoji> {
-        http.get_emoji(self.0, emoji_id.0).await
+        http.get_emoji(self.0, emoji_id.0).await.map_err(Into::into)
     }
 
     /// Gets all [`Sticker`]s of this guild via HTTP.
@@ -996,7 +999,7 @@ impl GuildId {
     ///
     /// Returns an [`Error::Http`] if the guild is unavailable.
     pub async fn stickers(self, http: &Http) -> Result<Vec<Sticker>> {
-        http.get_guild_stickers(self.0).await
+        http.get_guild_stickers(self.0).await.map_err(Into::into)
     }
 
     /// Gets an [`Sticker`] of this guild by its ID via HTTP.
@@ -1005,7 +1008,7 @@ impl GuildId {
     ///
     /// Returns an [`Error::Http`] if an sticker with that Id does not exist.
     pub async fn sticker(self, http: &Http, sticker_id: StickerId) -> Result<Sticker> {
-        http.get_guild_sticker(self.0, sticker_id.0).await
+        http.get_guild_sticker(self.0, sticker_id.0).await.map_err(Into::into)
     }
 
     /// Gets all integration of the guild.
@@ -1019,7 +1022,7 @@ impl GuildId {
     ///
     /// [Manage Guild]: Permissions::MANAGE_GUILD
     pub async fn integrations(self, http: &Http) -> Result<Vec<Integration>> {
-        http.get_guild_integrations(self.0).await
+        http.get_guild_integrations(self.0).await.map_err(Into::into)
     }
 
     /// Gets all of the guild's invites.
@@ -1035,7 +1038,7 @@ impl GuildId {
     /// [Manage Guild]: Permissions::MANAGE_GUILD
     /// [View Audit Log]: Permissions::VIEW_AUDIT_LOG
     pub async fn invites(self, http: &Http) -> Result<Vec<Invite>> {
-        http.get_guild_invites(self.0).await
+        http.get_guild_invites(self.0).await.map_err(Into::into)
     }
 
     /// Kicks a [`Member`] from the guild.
@@ -1052,7 +1055,7 @@ impl GuildId {
             Maximum::AuditLogReason.check_overflow(reason.len())?;
         }
 
-        http.kick_member(self.0, user_id.0, reason).await
+        http.kick_member(self.0, user_id.0, reason).await.map_err(Into::into)
     }
 
     /// Returns a guild [`Member`] object for the current user.
@@ -1064,7 +1067,7 @@ impl GuildId {
     /// Returns an [`Error::Http`] if the current user is not in the guild or the access token
     /// lacks the necessary scope.
     pub async fn current_user_member(self, http: &Http) -> Result<Member> {
-        http.get_current_user_guild_member(self.0).await
+        http.get_current_user_guild_member(self.0).await.map_err(Into::into)
     }
 
     /// Leaves the guild.
@@ -1074,7 +1077,7 @@ impl GuildId {
     /// May return an [`Error::Http`] if the current user cannot leave the guild, or currently is
     /// not in the guild.
     pub async fn leave(self, http: &Http) -> Result<()> {
-        http.leave_guild(self.0).await
+        http.leave_guild(self.0).await.map_err(Into::into)
     }
 
     /// Gets a user's [`Member`] for the guild by Id.
@@ -1097,7 +1100,7 @@ impl GuildId {
             }
         }
 
-        cache_http.http().get_member(self.0, user_id.0).await
+        cache_http.http().get_member(self.0, user_id.0).await.map_err(Into::into)
     }
 
     /// Gets a list of the guild's members.
@@ -1119,7 +1122,7 @@ impl GuildId {
         limit: Option<NonMaxU16>,
         after: Option<UserId>,
     ) -> Result<Vec<Member>> {
-        http.get_guild_members(self.0, limit, after.map(|id| id.0)).await
+        http.get_guild_members(self.0, limit, after.map(|id| id.0)).await.map_err(Into::into)
     }
 
     /// Streams over all the members in a guild.
@@ -1157,7 +1160,7 @@ impl GuildId {
     ///
     /// Returns [`Error::Http`] if the user is not in a voice channel in this guild.
     pub async fn get_user_voice_state(self, http: &Http, user_id: UserId) -> Result<VoiceState> {
-        http.get_user_voice_state(self.0, user_id.0).await
+        http.get_user_voice_state(self.0, user_id.0).await.map_err(Into::into)
     }
 
     /// Moves a member to a specific voice channel.
@@ -1211,7 +1214,7 @@ impl GuildId {
     ///
     /// [Kick Members]: Permissions::KICK_MEMBERS
     pub async fn prune_count(self, http: &Http, days: u8) -> Result<GuildPrune> {
-        http.get_guild_prune_count(self.0, days).await
+        http.get_guild_prune_count(self.0, days).await.map_err(Into::into)
     }
 
     /// Re-orders the channels of the guild.
@@ -1244,7 +1247,7 @@ impl GuildId {
             position,
         });
 
-        http.edit_guild_channel_positions(self.0, iter).await
+        http.edit_guild_channel_positions(self.0, iter).await.map_err(Into::into)
     }
 
     /// Returns a list of [`Member`]s in a [`Guild`] whose username or nickname starts with a
@@ -1262,7 +1265,7 @@ impl GuildId {
         query: &str,
         limit: Option<NonMaxU16>,
     ) -> Result<Vec<Member>> {
-        http.search_guild_members(self.0, query, limit).await
+        http.search_guild_members(self.0, query, limit).await.map_err(Into::into)
     }
 
     /// Fetches a specified scheduled event in the guild, by Id. If `with_user_count` is set to
@@ -1283,7 +1286,7 @@ impl GuildId {
         event_id: ScheduledEventId,
         with_user_count: bool,
     ) -> Result<ScheduledEvent> {
-        http.get_scheduled_event(self.0, event_id.0, with_user_count).await
+        http.get_scheduled_event(self.0, event_id.0, with_user_count).await.map_err(Into::into)
     }
 
     /// Fetches a list of all scheduled events in the guild. If `with_user_count` is set to `true`,
@@ -1301,7 +1304,7 @@ impl GuildId {
         http: &Http,
         with_user_count: bool,
     ) -> Result<Vec<ScheduledEvent>> {
-        http.get_scheduled_events(self.0, with_user_count).await
+        http.get_scheduled_events(self.0, with_user_count).await.map_err(Into::into)
     }
 
     /// Fetches a list of interested users for the specified event.
@@ -1322,7 +1325,9 @@ impl GuildId {
         event_id: ScheduledEventId,
         limit: Option<NonMaxU8>,
     ) -> Result<Vec<ScheduledEventUser>> {
-        http.get_scheduled_event_users(self.0, event_id.0, limit, None, None).await
+        http.get_scheduled_event_users(self.0, event_id.0, limit, None, None)
+            .await
+            .map_err(Into::into)
     }
 
     /// Fetches a list of interested users for the specified event, with additional options and
@@ -1352,6 +1357,7 @@ impl GuildId {
             with_member,
         )
         .await
+        .map_err(Into::into)
     }
 
     /// Returns the Id of the shard associated with the guild.
@@ -1381,7 +1387,7 @@ impl GuildId {
         http: &Http,
         integration_id: IntegrationId,
     ) -> Result<()> {
-        http.start_integration_sync(self.0, integration_id.0).await
+        http.start_integration_sync(self.0, integration_id.0).await.map_err(Into::into)
     }
 
     /// Starts a prune of [`Member`]s.
@@ -1402,7 +1408,7 @@ impl GuildId {
         days: u8,
         reason: Option<&str>,
     ) -> Result<GuildPrune> {
-        http.start_guild_prune(self.0, days, reason).await
+        http.start_guild_prune(self.0, days, reason).await.map_err(Into::into)
     }
 
     /// Unbans a [`User`] from the guild.
@@ -1415,7 +1421,7 @@ impl GuildId {
     ///
     /// [Ban Members]: Permissions::BAN_MEMBERS
     pub async fn unban(self, http: &Http, user_id: UserId, reason: Option<&str>) -> Result<()> {
-        http.remove_ban(self.0, user_id.0, reason).await
+        http.remove_ban(self.0, user_id.0, reason).await.map_err(Into::into)
     }
 
     /// Retrieve's the guild's vanity URL.
@@ -1429,7 +1435,7 @@ impl GuildId {
     ///
     /// [Manage Guild]: Permissions::MANAGE_GUILD
     pub async fn vanity_url(self, http: &Http) -> Result<String> {
-        http.get_guild_vanity_url(self.0).await
+        http.get_guild_vanity_url(self.0).await.map_err(Into::into)
     }
 
     /// Retrieves the guild's webhooks.
@@ -1443,7 +1449,7 @@ impl GuildId {
     /// Will return an [`Error::Http`] if the bot is lacking permissions. Can also return an
     /// [`Error::Json`] if there is an error deserializing the API response.
     pub async fn webhooks(self, http: &Http) -> Result<Vec<Webhook>> {
-        http.get_guild_webhooks(self.0).await
+        http.get_guild_webhooks(self.0).await.map_err(Into::into)
     }
 
     /// Create a guild specific application [`Command`].
@@ -1467,7 +1473,7 @@ impl GuildId {
         http: &Http,
         commands: &[CreateCommand<'_>],
     ) -> Result<Vec<Command>> {
-        http.create_guild_commands(self.0, &commands).await
+        http.create_guild_commands(self.0, &commands).await.map_err(Into::into)
     }
 
     /// Overwrites permissions for a specific command.
@@ -1492,7 +1498,7 @@ impl GuildId {
     ///
     /// If there is an error, it will be either [`Error::Http`] or [`Error::Json`].
     pub async fn get_commands(self, http: &Http) -> Result<Vec<Command>> {
-        http.get_guild_commands(self.0).await
+        http.get_guild_commands(self.0).await.map_err(Into::into)
     }
 
     /// Get all guild application commands with localizations.
@@ -1501,7 +1507,7 @@ impl GuildId {
     ///
     /// If there is an error, it will be either [`Error::Http`] or [`Error::Json`].
     pub async fn get_commands_with_localizations(self, http: &Http) -> Result<Vec<Command>> {
-        http.get_guild_commands_with_localizations(self.0).await
+        http.get_guild_commands_with_localizations(self.0).await.map_err(Into::into)
     }
 
     /// Get a specific guild application command by its Id.
@@ -1510,7 +1516,7 @@ impl GuildId {
     ///
     /// If there is an error, it will be either [`Error::Http`] or [`Error::Json`].
     pub async fn get_command(self, http: &Http, command_id: CommandId) -> Result<Command> {
-        http.get_guild_command(self.0, command_id.0).await
+        http.get_guild_command(self.0, command_id.0).await.map_err(Into::into)
     }
 
     /// Edit a guild application command, given its Id.
@@ -1533,7 +1539,7 @@ impl GuildId {
     ///
     /// If there is an error, it will be either [`Error::Http`] or [`Error::Json`].
     pub async fn delete_command(self, http: &Http, command_id: CommandId) -> Result<()> {
-        http.delete_guild_command(self.0, command_id.0).await
+        http.delete_guild_command(self.0, command_id.0).await.map_err(Into::into)
     }
 
     /// Get all guild application commands permissions only.
@@ -1542,7 +1548,7 @@ impl GuildId {
     ///
     /// If there is an error, it will be either [`Error::Http`] or [`Error::Json`].
     pub async fn get_commands_permissions(self, http: &Http) -> Result<Vec<CommandPermissions>> {
-        http.get_guild_commands_permissions(self.0).await
+        http.get_guild_commands_permissions(self.0).await.map_err(Into::into)
     }
 
     /// Get permissions for specific guild application command by its Id.
@@ -1555,7 +1561,7 @@ impl GuildId {
         http: &Http,
         command_id: CommandId,
     ) -> Result<CommandPermissions> {
-        http.get_guild_command_permissions(self.0, command_id.0).await
+        http.get_guild_command_permissions(self.0, command_id.0).await.map_err(Into::into)
     }
 
     /// Get the guild welcome screen.
@@ -1564,7 +1570,7 @@ impl GuildId {
     ///
     /// Returns [`Error::Http`] if the guild does not have a welcome screen.
     pub async fn get_welcome_screen(self, http: &Http) -> Result<GuildWelcomeScreen> {
-        http.get_guild_welcome_screen(self.0).await
+        http.get_guild_welcome_screen(self.0).await.map_err(Into::into)
     }
 
     /// Get the guild preview.
@@ -1576,7 +1582,7 @@ impl GuildId {
     ///
     /// Returns [`Error::Http`] if the bot cannot see the guild preview, see the note.
     pub async fn get_preview(self, http: &Http) -> Result<GuildPreview> {
-        http.get_guild_preview(self.0).await
+        http.get_guild_preview(self.0).await.map_err(Into::into)
     }
 
     /// Get the guild widget.
@@ -1585,7 +1591,7 @@ impl GuildId {
     ///
     /// Returns [`Error::Http`] if the bot does not have `MANAGE_MESSAGES` permission.
     pub async fn get_widget(self, http: &Http) -> Result<GuildWidget> {
-        http.get_guild_widget(self.0).await
+        http.get_guild_widget(self.0).await.map_err(Into::into)
     }
 
     /// Get the widget image URL.
@@ -1601,7 +1607,7 @@ impl GuildId {
     /// Returns [`Error::Http`] if there is an error in the deserialization, or if the bot issuing
     /// the request is not in the guild.
     pub async fn get_active_threads(self, http: &Http) -> Result<ThreadsData> {
-        http.get_guild_active_threads(self.0).await
+        http.get_guild_active_threads(self.0).await.map_err(Into::into)
     }
 
     /// Gets a soundboard sound from the guild.
@@ -1611,7 +1617,7 @@ impl GuildId {
     /// Returns [`Error::Http`] if there is an error in the deserialization, or if the bot issuing
     /// the request is not in the guild.
     pub async fn get_soundboard(self, http: &Http, sound_id: SoundId) -> Result<Soundboard> {
-        http.get_guild_soundboard(self.0, sound_id.0).await
+        http.get_guild_soundboard(self.0, sound_id.0).await.map_err(Into::into)
     }
 
     /// Gets all soundboard sounds from the guild.
@@ -1621,7 +1627,7 @@ impl GuildId {
     /// Returns [`Error::Http`] if there is an error in the deserialization, or if the bot issuing
     /// the request is not in the guild.
     pub async fn get_soundboards(self, http: &Http) -> Result<Vec<Soundboard>> {
-        http.get_guild_soundboards(self.0).await
+        http.get_guild_soundboards(self.0).await.map_err(Into::into)
     }
 
     /// Creates a soundboard sound for the guild.
@@ -1663,7 +1669,7 @@ impl GuildId {
         sound_id: SoundId,
         audit_log_reason: Option<&str>,
     ) -> Result<()> {
-        http.delete_guild_soundboard(self.0, sound_id.0, audit_log_reason).await
+        http.delete_guild_soundboard(self.0, sound_id.0, audit_log_reason).await.map_err(Into::into)
     }
 
     /// Edits the guild incident actions
@@ -1789,7 +1795,7 @@ impl<'a> MembersIter<'a> {
     /// not return duplicate items.  If there are no more members to be fetched, then this marks
     /// `self.after` as None, indicating that no more calls ought to be made.
     async fn refresh(&mut self) -> Result<()> {
-        let grab_size = crate::constants::MEMBER_FETCH_LIMIT;
+        let grab_size = crate::http::MEMBER_FETCH_LIMIT;
 
         // Number of profiles to fetch
         self.buffer = self.guild_id.members(self.http, Some(grab_size), self.after).await?;

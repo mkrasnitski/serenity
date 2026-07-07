@@ -84,5 +84,6 @@ impl<'a> EditSoundboard<'a> {
             .http()
             .edit_guild_soundboard(guild_id.0, sound_id.0, &self, self.audit_log_reason)
             .await
+            .map_err(Into::into)
     }
 }

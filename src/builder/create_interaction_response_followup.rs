@@ -1,5 +1,7 @@
 use std::borrow::Cow;
 
+use serenity_utils::AllowedMentions;
+
 use super::create_poll::Ready;
 use super::{
     CreateAllowedMentions,
@@ -25,7 +27,7 @@ pub struct CreateInteractionResponseFollowup<'a> {
     tts: Option<bool>,
     embeds: Option<Cow<'a, [CreateEmbed<'a>]>>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    allowed_mentions: Option<CreateAllowedMentions<'a>>,
+    allowed_mentions: Option<AllowedMentions>,
     #[serde(skip_serializing_if = "Option::is_none")]
     components: Option<Cow<'a, [CreateComponent<'a>]>>,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -118,7 +120,7 @@ impl<'a> CreateInteractionResponseFollowup<'a> {
 
     /// Set the allowed mentions for the message.
     pub fn allowed_mentions(mut self, allowed_mentions: CreateAllowedMentions<'a>) -> Self {
-        self.allowed_mentions = Some(allowed_mentions);
+        self.allowed_mentions = Some(allowed_mentions.into());
         self
     }
 
@@ -188,5 +190,6 @@ impl<'a> CreateInteractionResponseFollowup<'a> {
             Some(id) => http.edit_followup_message(interaction_token, id.0, &self, files).await,
             None => http.create_followup_message(interaction_token, &self, files).await,
         }
+        .map_err(Into::into)
     }
 }

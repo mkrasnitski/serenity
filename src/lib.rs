@@ -101,8 +101,6 @@ pub mod collector;
 pub mod framework;
 #[cfg(feature = "gateway")]
 pub mod gateway;
-#[cfg(feature = "http")]
-pub mod http;
 #[cfg(feature = "interactions_endpoint")]
 pub mod interactions_endpoint;
 #[cfg(feature = "utils")]
@@ -110,6 +108,8 @@ pub mod utils;
 
 mod error;
 
+#[cfg(feature = "http")]
+pub use serenity_http as http;
 pub use serenity_utils::secrets;
 
 pub use crate::error::{Error, Result};

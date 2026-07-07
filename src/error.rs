@@ -3,7 +3,7 @@ use std::fmt;
 use std::io::Error as IoError;
 
 #[cfg(feature = "http")]
-use reqwest::{Error as ReqwestError, header::InvalidHeaderValue};
+use reqwest::Error as ReqwestError;
 #[cfg(feature = "gateway")]
 use tokio_tungstenite::tungstenite::error::Error as TungsteniteError;
 #[cfg(feature = "tracing_instrument")]
@@ -12,7 +12,7 @@ use tracing::instrument;
 #[cfg(feature = "gateway")]
 use crate::gateway::GatewayError;
 #[cfg(feature = "http")]
-use crate::http::HttpError;
+use crate::http::{HttpError, RequestError};
 use crate::internal::prelude::*;
 use crate::model::ModelError;
 use crate::secrets::TokenError;
@@ -45,7 +45,7 @@ pub enum Error {
     ///
     /// [`http`]: crate::http
     #[cfg(feature = "http")]
-    Http(HttpError),
+    Request(RequestError),
     /// An error from the `tungstenite` crate.
     #[cfg(feature = "gateway")]
     Tungstenite(Box<TungsteniteError>),
@@ -114,13 +114,6 @@ impl From<TungsteniteError> for Error {
     }
 }
 
-#[cfg(feature = "http")]
-impl From<HttpError> for Error {
-    fn from(e: HttpError) -> Error {
-        Error::Http(e)
-    }
-}
-
 impl From<TokenError> for Error {
     fn from(e: TokenError) -> Error {
         Error::Token(e)
@@ -140,16 +133,20 @@ impl From<url::ParseError> for Error {
 }
 
 #[cfg(feature = "http")]
-impl From<InvalidHeaderValue> for Error {
-    fn from(e: InvalidHeaderValue) -> Error {
-        HttpError::InvalidHeader(e).into()
+impl From<HttpError> for Error {
+    fn from(e: HttpError) -> Error {
+        match e {
+            HttpError::Io(e) => Self::Io(e),
+            HttpError::Json(e) => Self::Json(e),
+            HttpError::Request(e) => Self::Request(e),
+        }
     }
 }
 
 #[cfg(feature = "http")]
 impl From<ReqwestError> for Error {
     fn from(e: ReqwestError) -> Error {
-        HttpError::Request(e).into()
+        Error::Request(RequestError::Reqwest(e))
     }
 }
 
@@ -162,7 +159,7 @@ impl fmt::Display for Error {
             #[cfg(feature = "gateway")]
             Self::Gateway(inner) => fmt::Display::fmt(&inner, f),
             #[cfg(feature = "http")]
-            Self::Http(inner) => fmt::Display::fmt(&inner, f),
+            Self::Request(inner) => fmt::Display::fmt(&inner, f),
             #[cfg(feature = "gateway")]
             Self::Tungstenite(inner) => fmt::Display::fmt(&inner, f),
             Self::Token(inner) => fmt::Display::fmt(&inner, f),
@@ -181,7 +178,7 @@ impl StdError for Error {
             #[cfg(feature = "gateway")]
             Self::Gateway(inner) => Some(inner),
             #[cfg(feature = "http")]
-            Self::Http(inner) => Some(inner),
+            Self::Request(inner) => Some(inner),
             #[cfg(feature = "gateway")]
             Self::Tungstenite(inner) => Some(inner),
             Self::Token(inner) => Some(inner),

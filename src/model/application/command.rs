@@ -157,7 +157,7 @@ impl Command {
         http: &Http,
         commands: &[CreateCommand<'_>],
     ) -> Result<Vec<Command>> {
-        http.create_global_commands(&commands).await
+        http.create_global_commands(&commands).await.map_err(Into::into)
     }
 
     /// Edit a global command, given its Id.
@@ -179,7 +179,7 @@ impl Command {
     ///
     /// If there is an error, it will be either [`Error::Http`] or [`Error::Json`].
     pub async fn get_global_commands(http: &Http) -> Result<Vec<Command>> {
-        http.get_global_commands().await
+        http.get_global_commands().await.map_err(Into::into)
     }
 
     /// Gets all global commands with localizations.
@@ -188,7 +188,7 @@ impl Command {
     ///
     /// If there is an error, it will be either [`Error::Http`] or [`Error::Json`].
     pub async fn get_global_commands_with_localizations(http: &Http) -> Result<Vec<Command>> {
-        http.get_global_commands_with_localizations().await
+        http.get_global_commands_with_localizations().await.map_err(Into::into)
     }
 
     /// Gets a global command by its Id.
@@ -197,7 +197,7 @@ impl Command {
     ///
     /// If there is an error, it will be either [`Error::Http`] or [`Error::Json`].
     pub async fn get_global_command(http: &Http, command_id: CommandId) -> Result<Command> {
-        http.get_global_command(command_id.0).await
+        http.get_global_command(command_id.0).await.map_err(Into::into)
     }
 
     /// Deletes a global command by its Id.
@@ -206,7 +206,7 @@ impl Command {
     ///
     /// If there is an error, it will be either [`Error::Http`] or [`Error::Json`].
     pub async fn delete_global_command(http: &Http, command_id: CommandId) -> Result<()> {
-        http.delete_global_command(command_id.0).await
+        http.delete_global_command(command_id.0).await.map_err(Into::into)
     }
 }
 

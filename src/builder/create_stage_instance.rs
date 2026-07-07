@@ -59,6 +59,6 @@ impl<'a> CreateStageInstance<'a> {
     #[cfg(feature = "http")]
     pub async fn execute(mut self, http: &Http, channel_id: ChannelId) -> Result<StageInstance> {
         self.channel_id = Some(channel_id);
-        http.create_stage_instance(&self, self.audit_log_reason).await
+        http.create_stage_instance(&self, self.audit_log_reason).await.map_err(Into::into)
     }
 }

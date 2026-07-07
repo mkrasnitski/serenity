@@ -123,7 +123,7 @@ impl ChannelId {
         reason: Option<&str>,
     ) -> Result<()> {
         let data: PermissionOverwriteData = target.into();
-        http.create_permission(self.0, data.id.0, &data, reason).await
+        http.create_permission(self.0, data.id.0, &data, reason).await.map_err(Into::into)
     }
 
     /// Deletes all permission overrides in the channel from a member or role.
@@ -145,7 +145,7 @@ impl ChannelId {
             PermissionOverwriteType::Member(id) => id.0,
             PermissionOverwriteType::Role(id) => id.0,
         };
-        http.delete_permission(self.0, id, reason).await
+        http.delete_permission(self.0, id, reason).await.map_err(Into::into)
     }
 
     /// Edits a channel's settings.
@@ -205,7 +205,7 @@ impl ChannelId {
             webhook_channel_id: target_channel_id,
         };
 
-        http.follow_news_channel(self.0, &map).await
+        http.follow_news_channel(self.0, &map).await.map_err(Into::into)
     }
 
     /// Gets all of the channel's invites.
@@ -218,7 +218,7 @@ impl ChannelId {
     ///
     /// [Manage Channels]: Permissions::MANAGE_CHANNELS
     pub async fn invites(self, http: &Http) -> Result<Vec<Invite>> {
-        http.get_channel_invites(self.0).await
+        http.get_channel_invites(self.0).await.map_err(Into::into)
     }
 
     /// Crossposts a [`Message`].
@@ -235,7 +235,7 @@ impl ChannelId {
     ///
     /// [Manage Messages]: Permissions::MANAGE_MESSAGES
     pub async fn crosspost(self, http: &Http, message_id: MessageId) -> Result<Message> {
-        http.crosspost_message(self.0, message_id.0).await
+        http.crosspost_message(self.0, message_id.0).await.map_err(Into::into)
     }
 
     /// Retrieves the channel's webhooks.
@@ -248,7 +248,7 @@ impl ChannelId {
     ///
     /// [Manage Webhooks]: Permissions::MANAGE_WEBHOOKS
     pub async fn webhooks(self, http: &Http) -> Result<Vec<Webhook>> {
-        http.get_channel_webhooks(self.0).await
+        http.get_channel_webhooks(self.0).await.map_err(Into::into)
     }
 
     /// Creates a webhook in the channel.
@@ -267,7 +267,7 @@ impl ChannelId {
     /// Returns [`Error::Http`] if the channel is not a stage channel, or if there is no stage
     /// instance currently.
     pub async fn get_stage_instance(self, http: &Http) -> Result<StageInstance> {
-        http.get_stage_instance(self.0).await
+        http.get_stage_instance(self.0).await.map_err(Into::into)
     }
 
     /// Creates a stage instance.
@@ -306,7 +306,7 @@ impl ChannelId {
     /// Returns [`Error::Http`] if the channel is not a stage channel, or if there is no stage
     /// instance currently.
     pub async fn delete_stage_instance(self, http: &Http, reason: Option<&str>) -> Result<()> {
-        http.delete_stage_instance(self.0, reason).await
+        http.delete_stage_instance(self.0, reason).await.map_err(Into::into)
     }
 
     /// Creates a public thread that is connected to a message.
@@ -362,7 +362,7 @@ impl ChannelId {
         before: Option<Timestamp>,
         limit: Option<u64>,
     ) -> Result<ThreadsData> {
-        http.get_channel_archived_private_threads(self.0, before, limit).await
+        http.get_channel_archived_private_threads(self.0, before, limit).await.map_err(Into::into)
     }
 
     /// Gets public archived threads of a channel.
@@ -376,7 +376,7 @@ impl ChannelId {
         before: Option<Timestamp>,
         limit: Option<u64>,
     ) -> Result<ThreadsData> {
-        http.get_channel_archived_public_threads(self.0, before, limit).await
+        http.get_channel_archived_public_threads(self.0, before, limit).await.map_err(Into::into)
     }
 
     /// Gets private archived threads joined by the current user of a channel.
@@ -390,7 +390,9 @@ impl ChannelId {
         before: Option<ChannelId>,
         limit: Option<u64>,
     ) -> Result<ThreadsData> {
-        http.get_channel_joined_archived_private_threads(self.0, before.map(|id| id.0), limit).await
+        http.get_channel_joined_archived_private_threads(self.0, before.map(|id| id.0), limit)
+            .await
+            .map_err(Into::into)
     }
 
     /// Sends a soundboard sound to this voice channel.
@@ -421,7 +423,7 @@ impl ChannelId {
             source_guild_id: guild_id,
         };
 
-        http.as_ref().send_soundboard_sound(self.0, &map).await
+        http.as_ref().send_soundboard_sound(self.0, &map).await.map_err(Into::into)
     }
 }
 
@@ -455,7 +457,7 @@ impl GenericChannelId {
     ///
     /// [Send Messages]: Permissions::SEND_MESSAGES
     pub async fn broadcast_typing(self, http: &Http) -> Result<()> {
-        http.broadcast_typing(self.0).await
+        http.broadcast_typing(self.0).await.map_err(Into::into)
     }
 
     /// React to a [`Message`] with a custom [`Emoji`] or unicode character.
@@ -476,7 +478,9 @@ impl GenericChannelId {
         message_id: MessageId,
         reaction_type: impl Into<ReactionType>,
     ) -> Result<()> {
-        http.create_reaction(self.0, message_id.0, &reaction_type.into().as_data()).await
+        http.create_reaction(self.0, message_id.0, &reaction_type.into().as_data())
+            .await
+            .map_err(Into::into)
     }
 
     /// Deletes this channel, returning the channel on a successful deletion.
@@ -489,7 +493,7 @@ impl GenericChannelId {
     ///
     /// [Manage Channels]: Permissions::MANAGE_CHANNELS
     pub async fn delete(self, http: &Http, reason: Option<&str>) -> Result<Channel> {
-        http.delete_channel(self.0, reason).await
+        http.delete_channel(self.0, reason).await.map_err(Into::into)
     }
 
     /// Deletes a [`Message`] given its Id.
@@ -510,7 +514,7 @@ impl GenericChannelId {
         message_id: MessageId,
         reason: Option<&str>,
     ) -> Result<()> {
-        http.delete_message(self.0, message_id.0, reason).await
+        http.delete_message(self.0, message_id.0, reason).await.map_err(Into::into)
     }
 
     /// Deletes messages by Ids from the given vector in the given channel.
@@ -553,7 +557,7 @@ impl GenericChannelId {
                 messages: message_ids,
             };
 
-            http.delete_messages(self.0, &req, reason).await
+            http.delete_messages(self.0, &req, reason).await.map_err(Into::into)
         }
     }
 
@@ -583,6 +587,7 @@ impl GenericChannelId {
             },
             None => http.delete_reaction_me(self.0, message_id.0, &reaction_type.as_data()).await,
         }
+        .map_err(Into::into)
     }
     /// Deletes all of the [`Reaction`]s associated with the provided message id.
     ///
@@ -596,7 +601,7 @@ impl GenericChannelId {
     ///
     /// [Manage Messages]: Permissions::MANAGE_MESSAGES
     pub async fn delete_reactions(self, http: &Http, message_id: MessageId) -> Result<()> {
-        http.delete_message_reactions(self.0, message_id.0).await
+        http.delete_message_reactions(self.0, message_id.0).await.map_err(Into::into)
     }
 
     /// Deletes all [`Reaction`]s of the given emoji to a message within the channel.
@@ -616,6 +621,7 @@ impl GenericChannelId {
     ) -> Result<()> {
         http.delete_message_reaction_emoji(self.0, message_id.0, &reaction_type.into().as_data())
             .await
+            .map_err(Into::into)
     }
 
     /// Edits a [`Message`] in the channel given its Id.
@@ -801,7 +807,7 @@ impl GenericChannelId {
     ///
     /// [Pin Messages]: Permissions::PIN_MESSAGES
     pub async fn pin(self, http: &Http, message_id: MessageId, reason: Option<&str>) -> Result<()> {
-        http.pin_message(self.0, message_id.0, reason).await
+        http.pin_message(self.0, message_id.0, reason).await.map_err(Into::into)
     }
 
     /// Gets the list of [`Message`]s which are pinned to the channel.
@@ -869,11 +875,12 @@ impl GenericChannelId {
             self.0,
             message_id.0,
             &emoji.into().as_data(),
-            reaction_type,
+            reaction_type.map(|r| r.0),
             limit,
             after.map(|id| id.0),
         )
         .await
+        .map_err(Into::into)
     }
 
     /// Sends a message with just the given message content in the channel.
@@ -1034,7 +1041,7 @@ impl GenericChannelId {
         message_id: MessageId,
         reason: Option<&str>,
     ) -> Result<()> {
-        http.unpin_message(self.0, message_id.0, reason).await
+        http.unpin_message(self.0, message_id.0, reason).await.map_err(Into::into)
     }
 
     /// Get a list of users that voted for this specific answer.
@@ -1058,6 +1065,7 @@ impl GenericChannelId {
             limit,
         )
         .await
+        .map_err(Into::into)
     }
 
     /// Ends the [`Poll`] on a given [`MessageId`], if there is one.
@@ -1066,7 +1074,7 @@ impl GenericChannelId {
     ///
     /// If the message does not have a poll, or if the poll was not created by the current user.
     pub async fn end_poll(self, http: &Http, message_id: MessageId) -> Result<Message> {
-        http.expire_poll(self.0, message_id.0).await
+        http.expire_poll(self.0, message_id.0).await.map_err(Into::into)
     }
 }
 

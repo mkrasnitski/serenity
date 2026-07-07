@@ -1,11 +1,8 @@
-#[cfg(all(
-    feature = "http",
-    not(any(
-        feature = "rustls_backend",
-        feature = "rustls_backend_no_provider",
-        feature = "native_tls_backend"
-    ))
-))]
+#[cfg(not(any(
+    feature = "rustls_backend",
+    feature = "rustls_backend_no_provider",
+    feature = "native_tls_backend"
+)))]
 compile_error!(
     "You have the `http` feature enabled; either the `rustls_backend`, `rustls_backend_no_provider`, \
     or `native_tls_backend` feature must be enabled to let Serenity make requests over the network.\n\

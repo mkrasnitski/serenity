@@ -345,7 +345,7 @@ impl Guild {
         };
 
         #[expect(deprecated)]
-        http.create_guild(&body).await
+        http.create_guild(&body).await.map_err(Into::into)
     }
 
     /// Deletes the current guild if the current user is the owner of the
@@ -565,7 +565,8 @@ impl Guild {
         if let Some(member) = self.members.get(&user_id) {
             Ok(Cow::Borrowed(member))
         } else {
-            http.get_member(self.id.0, user_id.0).await.map(Cow::Owned)
+            let member = http.get_member(self.id.0, user_id.0).await?;
+            Ok(Cow::Owned(member))
         }
     }
 

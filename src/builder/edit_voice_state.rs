@@ -84,5 +84,6 @@ impl EditVoiceState {
         } else {
             http.edit_voice_state_me(guild_id.0, &self).await
         }
+        .map_err(Into::into)
     }
 }
