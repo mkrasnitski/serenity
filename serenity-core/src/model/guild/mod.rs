@@ -34,8 +34,6 @@ pub use self::system_channel::*;
 pub use self::welcome_screen::*;
 #[cfg(feature = "model")]
 use crate::builder::EditGuild;
-#[cfg(doc)]
-use crate::constants::LARGE_THRESHOLD;
 #[cfg(feature = "model")]
 use crate::http::{Http, Pagination};
 use crate::model::prelude::*;
@@ -234,7 +232,9 @@ pub struct Guild {
     /// Users who are members of the guild.
     ///
     /// Members might not all be available when the [`ReadyEvent`] is received if the
-    /// [`Self::member_count`] is greater than the [`LARGE_THRESHOLD`] set by the library.
+    /// [`Self::member_count`] is greater than the [Large Threshold] set by the library.
+    ///
+    /// [Large Threshold]: https://docs.discord.com/developers/events/gateway-events#identify-identify-structure
     pub members: ExtractMap<UserId, Member>,
     /// All voice and text channels contained within a guild.
     ///

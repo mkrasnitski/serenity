@@ -10,10 +10,10 @@ use tracing::instrument;
 use tracing::{debug, error, trace, warn};
 
 use super::{Shard, ShardAction, ShardManagerMessage};
+use crate::error::{Error, Result};
 use crate::gateway::client::dispatch::EventDispatcher;
-use crate::gateway::{ActivityData, ChunkGuildFilter, GatewayError};
-use crate::internal::prelude::*;
-use crate::model::event::{Event, GatewayEvent, ShardStageUpdateEvent};
+use crate::gateway::{ActivityData, ChunkGuildFilter, GatewayError, GatewayEvent};
+use crate::model::event::{Event, ShardStageUpdateEvent};
 #[cfg(feature = "voice")]
 use crate::model::id::ChannelId;
 use crate::model::id::GuildId;

@@ -6,6 +6,7 @@ use parking_lot::RwLock;
 use crate::builder::DataUri;
 #[cfg(feature = "cache")]
 pub use crate::cache::Cache;
+use crate::error::Result;
 #[cfg(feature = "collector")]
 use crate::gateway::CollectorCallback;
 use crate::gateway::{
@@ -327,7 +328,7 @@ impl Context {
     ///
     /// Returns an error if the emoji does not exist.
     pub async fn get_application_emoji(&self, emoji_id: EmojiId) -> Result<Emoji> {
-        self.http.get_application_emoji(emoji_id.0).await.map_err(Into::into)
+        self.http.get_application_emoji(emoji_id.into()).await.map_err(Into::into)
     }
 
     /// Creates an application emoji with a name and base64-encoded image.
@@ -366,7 +367,7 @@ impl Context {
             name,
         };
 
-        self.http.edit_application_emoji(emoji_id.0, &body).await.map_err(Into::into)
+        self.http.edit_application_emoji(emoji_id.into(), &body).await.map_err(Into::into)
     }
 
     /// Deletes an application emoji.
@@ -375,6 +376,6 @@ impl Context {
     ///
     /// Returns an error if the emoji does not exist.
     pub async fn delete_application_emoji(&self, emoji_id: EmojiId) -> Result<()> {
-        self.http.delete_application_emoji(emoji_id.0).await.map_err(Into::into)
+        self.http.delete_application_emoji(emoji_id.into()).await.map_err(Into::into)
     }
 }

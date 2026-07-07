@@ -78,23 +78,16 @@
 )]
 #![cfg_attr(test, allow(clippy::unwrap_used))]
 
+#[cfg(feature = "gateway")]
 #[macro_use]
 extern crate serde;
 
+#[cfg(feature = "gateway")]
 #[macro_use]
 extern crate serenity_utils;
 
-#[macro_use]
-mod internal;
-
-pub mod constants;
-pub mod model;
 pub mod prelude;
 
-#[cfg(feature = "builder")]
-pub mod builder;
-#[cfg(feature = "cache")]
-pub mod cache;
 #[cfg(feature = "collector")]
 pub mod collector;
 #[cfg(feature = "framework")]
@@ -103,13 +96,18 @@ pub mod framework;
 pub mod gateway;
 #[cfg(feature = "interactions_endpoint")]
 pub mod interactions_endpoint;
-#[cfg(feature = "utils")]
-pub mod utils;
 
 mod error;
 
+#[cfg(feature = "builder")]
+pub use serenity_core::builder;
+#[cfg(feature = "cache")]
+pub use serenity_core::cache;
 #[cfg(feature = "http")]
-pub use serenity_http as http;
+pub use serenity_core::http;
+pub use serenity_core::model;
+#[cfg(feature = "utils")]
+pub use serenity_core::utils;
 pub use serenity_utils::secrets;
 
 pub use crate::error::{Error, Result};
@@ -129,14 +127,12 @@ pub mod all {
     #[cfg(feature = "collector")]
     #[doc(no_inline)]
     pub use crate::collector::*;
-    #[doc(no_inline)]
-    pub use crate::constants::*;
     #[cfg(feature = "framework")]
     #[doc(no_inline)]
     pub use crate::framework::*;
     #[cfg(feature = "gateway")]
     #[doc(no_inline)]
-    pub use crate::gateway::{client::*, *};
+    pub use crate::gateway::{client::*, constants::*, *};
     #[cfg(feature = "http")]
     #[doc(no_inline)]
     pub use crate::http::*;
@@ -144,17 +140,16 @@ pub mod all {
     #[doc(no_inline)]
     pub use crate::interactions_endpoint::*;
     #[doc(no_inline)]
+    pub use crate::model::prelude::*;
+    #[doc(no_inline)]
     pub use crate::secrets::*;
     #[cfg(feature = "utils")]
     #[doc(no_inline)]
     pub use crate::utils::*;
-    // #[doc(no_inline)]
-    // pub use crate::*;
     #[doc(no_inline)]
     pub use crate::{
         // Need to re-export this manually or it can't be accessed for some reason
         async_trait,
-        model::prelude::*,
         *,
     };
 }
@@ -162,5 +157,4 @@ pub mod all {
 // Re-exports of crates used internally which are already publically exposed.
 pub use async_trait::async_trait;
 pub use futures;
-pub use nonmax;
 pub use small_fixed_array;

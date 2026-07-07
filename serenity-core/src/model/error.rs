@@ -3,6 +3,8 @@
 use std::error::Error as StdError;
 use std::fmt;
 
+use crate::model::constants;
+
 #[derive(Copy, Clone, Debug, Eq, Hash, PartialEq)]
 #[non_exhaustive]
 pub enum Maximum {
@@ -31,10 +33,10 @@ impl Maximum {
 
     pub(crate) fn value(self) -> usize {
         match self {
-            Self::EmbedCount => crate::constants::EMBED_MAX_COUNT,
-            Self::EmbedLength => crate::constants::EMBED_MAX_LENGTH,
-            Self::MessageLength => crate::constants::MESSAGE_CODE_LIMIT,
-            Self::StickerCount => crate::constants::STICKER_MAX_COUNT,
+            Self::EmbedCount => constants::EMBED_MAX_COUNT,
+            Self::EmbedLength => constants::EMBED_MAX_LENGTH,
+            Self::MessageLength => constants::MESSAGE_CODE_LIMIT,
+            Self::StickerCount => constants::STICKER_MAX_COUNT,
             Self::WebhookName | Self::BulkDeleteAmount => 100,
             Self::AuditLogReason => 512,
         }

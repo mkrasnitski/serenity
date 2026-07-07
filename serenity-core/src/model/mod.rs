@@ -22,6 +22,8 @@ mod utils;
 #[cfg(test)]
 pub(crate) use utils::assert_json;
 
+mod constants;
+
 pub mod application;
 pub mod channel;
 pub mod colour;

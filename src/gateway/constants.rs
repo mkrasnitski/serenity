@@ -1,22 +1,8 @@
-//! A set of constants used by the library.
-
-/// The maximum length of the textual size of an embed.
-pub const EMBED_MAX_LENGTH: usize = 6000;
-
-/// The maximum number of embeds in a message.
-pub const EMBED_MAX_COUNT: usize = 10;
-
-/// The maximum number of stickers in a message.
-pub const STICKER_MAX_COUNT: usize = 3;
-
 /// The gateway version used by the library. The gateway URL is retrieved via the REST API.
 pub const GATEWAY_VERSION: u8 = 10;
 
 /// The large threshold to send on identify.
 pub const LARGE_THRESHOLD: u8 = 250;
-
-/// The maximum unicode code points allowed within a message by Discord.
-pub const MESSAGE_CODE_LIMIT: usize = 2000;
 
 enum_number! {
     /// An enum representing the gateway opcodes.

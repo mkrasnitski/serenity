@@ -8,6 +8,7 @@ use dashmap::DashMap;
 use futures::StreamExt;
 use futures::channel::mpsc::{self, UnboundedReceiver as Receiver, UnboundedSender as Sender};
 use parking_lot::RwLock;
+use serenity_utils::secrets::Token;
 use serenity_utils::spawn_named;
 use tokio::time::{sleep, timeout};
 #[cfg(feature = "tracing_instrument")]
@@ -25,6 +26,7 @@ use super::{
 };
 #[cfg(feature = "cache")]
 use crate::cache::Cache;
+use crate::error::Result;
 #[cfg(feature = "framework")]
 use crate::framework::Framework;
 #[cfg(feature = "voice")]
@@ -33,7 +35,6 @@ use crate::gateway::client::dispatch::EventDispatcher;
 use crate::gateway::client::{Context, EventHandler, RawEventHandler};
 use crate::gateway::{GatewayError, PresenceData, TransportCompression};
 use crate::http::Http;
-use crate::internal::prelude::*;
 use crate::model::gateway::{ConnectionStage, GatewayIntents};
 
 /// The default time to wait between starting each shard or set of shards.
@@ -244,7 +245,7 @@ impl ShardManager {
         .await?;
 
         let cloned_http = Arc::clone(&self.http);
-        shard.set_application_id_callback(move |id| cloned_http.set_application_id(id.0));
+        shard.set_application_id_callback(move |id| cloned_http.set_application_id(id.into()));
 
         let (runner_tx, runner_rx) = mpsc::unbounded();
         let runner_info = Arc::new(RwLock::new(ShardRunnerInfo {

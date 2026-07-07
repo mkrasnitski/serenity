@@ -15,9 +15,9 @@ use crate::builder::{CreateAllowedMentions, CreateMessage, EditMessage};
 #[cfg(all(feature = "cache", feature = "model"))]
 use crate::cache::{Cache, GuildRef};
 #[cfg(feature = "model")]
-use crate::constants;
-#[cfg(feature = "model")]
 use crate::http::Http;
+#[cfg(feature = "model")]
+use crate::model::constants;
 use crate::model::prelude::*;
 use crate::model::utils::{StrOrInt, discord_colours};
 

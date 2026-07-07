@@ -1,5 +1,7 @@
 use std::borrow::Cow;
 
+use small_fixed_array::{FixedArray, FixedString};
+
 use crate::builder::{
     CreateInputText,
     CreateInteractionResponse,
@@ -9,6 +11,7 @@ use crate::builder::{
     CreateTextDisplay,
 };
 use crate::collector::ModalInteractionCollector;
+use crate::error::Result;
 use crate::gateway::client::Context;
 use crate::model::prelude::*;
 
@@ -114,7 +117,7 @@ impl<'a> CreateQuickModal<'a> {
         ctx: &Context,
         interaction_id: InteractionId,
         token: &str,
-    ) -> Result<Option<QuickModalResponse>, crate::Error> {
+    ) -> Result<Option<QuickModalResponse>> {
         let builder = CreateInteractionResponse::Modal(
             CreateModal::new(interaction_id.to_string(), self.title).components(self.components),
         );

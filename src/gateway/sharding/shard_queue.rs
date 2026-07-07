@@ -1,8 +1,9 @@
 use std::collections::VecDeque;
 use std::num::NonZeroU16;
 
+use small_fixed_array::FixedArray;
+
 use super::ShardId;
-use crate::internal::prelude::*;
 
 /// A queue of [`ShardId`]s that is split up into multiple buckets according to the value of
 /// [`max_concurrency`](crate::model::gateway::SessionStartLimit::max_concurrency).

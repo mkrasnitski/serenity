@@ -35,6 +35,7 @@ use std::sync::OnceLock;
 use std::time::Duration;
 
 use futures::future::BoxFuture;
+use serenity_utils::secrets::Token;
 use serenity_utils::spawn_named;
 #[cfg(feature = "tracing_instrument")]
 use tracing::instrument;
@@ -56,10 +57,10 @@ use super::{
 use crate::cache::Cache;
 #[cfg(feature = "cache")]
 use crate::cache::Settings as CacheSettings;
+use crate::error::{Error, Result};
 #[cfg(feature = "framework")]
 use crate::framework::Framework;
 use crate::http::Http;
-use crate::internal::prelude::*;
 use crate::model::gateway::{BotGateway, GatewayIntents};
 #[cfg(feature = "voice")]
 use crate::model::id::UserId;

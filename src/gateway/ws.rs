@@ -18,9 +18,15 @@ use url::Url;
 #[cfg(feature = "transport_compression_zstd")]
 use zstd::stream::write::Decoder as ZstdWriter;
 
-use super::{ActivityData, ChunkGuildFilter, GatewayError, PresenceData, TransportCompression};
-use crate::constants::{self, Opcode};
-use crate::model::event::GatewayEvent;
+use super::constants::{self, Opcode};
+use super::{
+    ActivityData,
+    ChunkGuildFilter,
+    GatewayError,
+    GatewayEvent,
+    PresenceData,
+    TransportCompression,
+};
 use crate::model::gateway::{GatewayIntents, ShardInfo};
 #[cfg(feature = "voice")]
 use crate::model::id::ChannelId;

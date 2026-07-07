@@ -38,6 +38,8 @@ use std::time::{Duration, Instant};
 #[cfg(any(feature = "transport_compression_zlib", feature = "transport_compression_zstd"))]
 use aformat::aformat_into;
 use aformat::{ArrayString, CapStr, aformat};
+use serenity_utils::secrets::Token;
+use small_fixed_array::FixedString;
 use tokio_tungstenite::tungstenite::error::Error as TungsteniteError;
 use tokio_tungstenite::tungstenite::protocol::frame::CloseFrame;
 #[cfg(feature = "tracing_instrument")]
@@ -54,10 +56,18 @@ pub use self::shard_manager::{
 };
 pub use self::shard_queue::ShardQueue;
 pub use self::shard_runner::{ShardRunner, ShardRunnerMessage};
-use super::{ActivityData, ChunkGuildFilter, GatewayError, PresenceData, WsClient};
-use crate::constants::{self, CloseCode};
-use crate::internal::prelude::*;
-use crate::model::event::{DeserializedEvent, Event, GatewayEvent};
+use super::constants::{self, CloseCode};
+use super::{
+    ActivityData,
+    ChunkGuildFilter,
+    DeserializedEvent,
+    GatewayError,
+    GatewayEvent,
+    PresenceData,
+    WsClient,
+};
+use crate::error::{Error, Result};
+use crate::model::event::Event;
 use crate::model::gateway::{ConnectionStage, GatewayIntents, ShardInfo};
 #[cfg(feature = "voice")]
 use crate::model::id::ChannelId;

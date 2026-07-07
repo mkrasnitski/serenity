@@ -15,7 +15,7 @@ edition.workspace = true
 rust-version.workspace = true
 
 [workspace]
-members = ["examples/*", "serenity-http", "serenity-utils"]
+members = ["examples/*", "serenity-core", "serenity-http", "serenity-utils"]
 
 [workspace.package]
 documentation = "https://docs.rs/serenity"
@@ -32,6 +32,7 @@ arrayvec = { version = "0.7.6", features = ["serde"] }
 bytes = "1.11.0"
 dashmap = { version = "6.1.0", features = ["serde"] }
 extract_map = { version = "0.3.1", features = ["serde"] }
+futures = { version = "0.3.32", default-features = false, features = ["std"] }
 nonmax = { version = "0.5.5", features = ["serde"] }
 parking_lot = "0.12.5"
 percent-encoding = "2.3.2"
@@ -39,53 +40,41 @@ reqwest = { version = ">=0.13", default-features = false, features = ["multipart
 serde = { version = "1.0.228", features = ["derive", "rc"] }
 serde_json = { version = "1.0.147", features = ["raw_value"] }
 small-fixed-array = { version = "0.4.10", features = ["serde"] }
+strum = { version = "0.27.2", features = ["derive"] }
 to-arraystring = "0.2.2"
 tokio = { version = "1.48.0", features = ["macros", "rt", "sync", "time", "io-util", "fs"] }
 tracing = { version = "0.1.44", features = ["log"] }
 typesize = { version = "0.1.14", features = ["url", "time", "serde_json", "secrecy", "parking_lot", "nonmax"] }
+url = { version = "2.5.7", features = ["serde"] }
 
 [dependencies]
 # Serenity workspace crates
-serenity-http = { path = "serenity-http", default-features = false, optional = true }
+serenity-core = { path = "serenity-core" }
 serenity-utils = { path = "serenity-utils" }
 
 # Workspace dependencies
-aformat = { workspace = true }
-arrayvec = { workspace = true }
-bytes = { workspace = true, optional = true }
+aformat = { workspace = true, optional = true }
 dashmap = { workspace = true, optional = true }
-extract_map = { workspace = true }
-nonmax = { workspace = true }
-parking_lot = { workspace = true }
-percent-encoding = { workspace = true, optional = true }
+extract_map = { workspace = true, optional = true }
+futures = { workspace = true }
+parking_lot = { workspace = true, optional = true }
 reqwest = { workspace = true, optional = true }
 serde = { workspace = true }
 serde_json = { workspace = true }
 small-fixed-array = { workspace = true }
-to-arraystring = { workspace = true }
+strum = { workspace = true, optional = true }
+to-arraystring = { workspace = true, optional = true }
 tokio = { workspace = true }
-tracing = { workspace = true }
+tracing = { workspace = true, optional = true }
 typesize = { workspace = true, optional = true }
+url = { workspace = true }
 
-# Required dependencies
-bitflags = "2.10.0"
+# Additional dependencies
 async-trait = "0.1.89"
-url = { version = "2.5.7", features = ["serde"] }
-futures = { version = "0.3.32", default-features = false, features = ["std"] }
-base64 = { version = "0.22.1" }
-serde_cow = { version = "0.1.2" }
-bool_to_bitflags = { version = "0.1.3" }
-strum = { version = "0.27.2", features = ["derive"] }
-ref-cast = "1.0.25"
-
-# Optional dependencies
-foldhash = { version = "0.2.0", optional = true }
-flate2 = { version = "1.1.9", features = ["zlib-rs"], optional = true }
-zstd = { version = "0.13", default-features = false, optional = true }
-tokio-tungstenite = { version = "0.28.0", features = ["url"], optional = true }
-mini-moka = { version = "0.10.3", optional = true }
 ed25519-dalek = { version = "2.2.0", optional = true }
-# serde feature only allows for serialisation,
+flate2 = { version = "1.1.9", features = ["zlib-rs"], optional = true }
+tokio-tungstenite = { version = "0.28.0", features = ["url"], optional = true }
+zstd = { version = "0.13", default-features = false, optional = true }
 
 [features]
 # Defaults with different backends
@@ -104,39 +93,48 @@ default_no_backend = [
 
 # Enables builder structs to configure Discord HTTP requests. Without this feature, you have to
 # construct JSON manually at some places.
-builder = ["bytes"]
+builder = ["serenity-core/builder"]
 # Enables the cache, which stores the data received from Discord gateway to provide access to
 # complete guild data, channels, users and more without needing HTTP requests.
-cache = ["foldhash", "dashmap"]
+cache = ["serenity-core/cache"]
 # Enables collectors, a utility feature that lets you await interaction events in code with
 # zero setup, without needing to setup an InteractionCreate event listener.
-collector = ["gateway"]
+collector = ["gateway", "to-arraystring"]
 # Enables the Framework trait which is an abstraction for old-style text commands.
 framework = ["gateway"]
 # Enables gateway support, which allows bots to listen for Discord events.
-gateway = ["model", "flate2", "dashmap"]
+gateway = [
+    "model",
+    "aformat",
+    "dashmap",
+    "extract_map",
+    "flate2",
+    "parking_lot",
+    "strum",
+    "tracing",
+]
 # Enables HTTP, which enables bots to execute actions on Discord.
-http = ["serenity-http", "reqwest", "percent-encoding"]
+http = ["serenity-core/http", "reqwest"]
 # Enables wrapper methods around HTTP requests on model types.
 # Requires "builder" to configure the requests and "http" to execute them.
 # Note: the model type definitions themselves are always active, regardless of this feature.
 # TODO: remove dependeny on utils feature
-model = ["builder", "http", "utils"]
+model = ["serenity-core/model", "builder", "http", "utils"]
 # Enables zlib-stream transport compression of incoming gateway events.
 transport_compression_zlib = ["flate2", "gateway"]
 # Enables zstd-stream transport compression of incoming gateway events.
 transport_compression_zstd = ["zstd", "gateway"]
 # Enables support for Discord API functionality that's not stable yet, as well as serenity APIs that
 # are allowed to change even in semver non-breaking updates.
-unstable = []
+unstable = ["serenity-core/unstable"]
 # Enables some utility functions that can be useful for bot creators.
-utils = []
+utils = ["serenity-core/utils"]
 voice = ["gateway"]
 # Enables unstable tokio features to give explicit names to internally spawned tokio tasks
-tokio_task_builder = ["serenity-utils/tokio_task_builder"]
+tokio_task_builder = ["serenity-core/tokio_task_builder", "serenity-utils/tokio_task_builder"]
 interactions_endpoint = ["ed25519-dalek"]
 # Uses chrono for Timestamp, instead of time
-chrono = ["serenity-utils/chrono"]
+chrono = ["serenity-core/chrono"]
 
 # This enables all parts of the serenity codebase
 # (Note: all feature-gated APIs to be documented should have their features listed here!)
@@ -145,38 +143,29 @@ chrono = ["serenity-utils/chrono"]
 full = ["default", "collector", "voice", "interactions_endpoint"]
 
 # Enables temporary caching in functions that retrieve data via the HTTP API.
-temp_cache = ["cache", "mini-moka", "typesize?/mini_moka", "typesize?/dashmap"]
+temp_cache = ["serenity-core/temp_cache"]
 
-typesize = [
-    "dep:typesize",
-    "serenity-http?/typesize",
-    "serenity-utils/typesize",
-    "dashmap/typesize",
-    "small-fixed-array/typesize",
-    "bool_to_bitflags/typesize",
-    "extract_map/typesize"
-]
+typesize = ["dep:typesize", "serenity-core/typesize"]
 
 # Enables compile-time heavy instrument macros from tracing
-tracing_instrument = ["serenity-http?/tracing_instrument", "tracing/attributes"]
+tracing_instrument = ["serenity-core/tracing_instrument", "tracing/attributes"]
 
 # Backends to pick from:
 # - Rustls Backends
 rustls_backend = [
-    "serenity-http?/rustls_backend",
+    "serenity-core/rustls_backend",
     "tokio-tungstenite/rustls-tls-webpki-roots",
 ]
 rustls_backend_no_provider = [
-    "serenity-http?/rustls_backend_no_provider",
+    "serenity-core/rustls_backend_no_provider",
     "tokio-tungstenite/rustls-tls-webpki-roots",
 ]
 
 # - Native TLS Backends
 native_tls_backend = [
-    "serenity-http?/native_tls_backend",
+    "serenity-core/native_tls_backend",
     "tokio-tungstenite/native-tls",
 ]
-
 
 [package.metadata.docs.rs]
 features = ["full"]
