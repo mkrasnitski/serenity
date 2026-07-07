@@ -1,4 +1,4 @@
-//! A cache containing data received from [`Shard`]s.
+//! A cache containing data received from the API.
 //!
 //! Using the cache allows to avoid REST API requests via the [`http`] module where possible.
 //! Issuing too many requests will lead to ratelimits.
@@ -20,7 +20,6 @@
 //! is "definitely no". If you do not care about RAM and want your bot to be able to access data
 //! while needing to hit the REST API as little as possible, then the answer is "yes".
 //!
-//! [`Shard`]: crate::gateway::Shard
 //! [`http`]: crate::http
 //! [Manage Guild]: Permissions::MANAGE_GUILD
 
@@ -125,7 +124,7 @@ struct CachedShardData {
     has_sent_shards_ready: bool,
 }
 
-/// A cache containing data received from [`Shard`]s.
+/// A cache containing data received from the API.
 ///
 /// Using the cache allows to avoid REST API requests via the [`http`] module where possible.
 /// Issuing too many requests will lead to ratelimits.
@@ -141,7 +140,6 @@ struct CachedShardData {
 ///
 /// The documentation of each event contains the required gateway intents.
 ///
-/// [`Shard`]: crate::gateway::Shard
 /// [`http`]: crate::http
 #[cfg_attr(feature = "typesize", derive(typesize::derive::TypeSize))]
 #[derive(Debug)]
@@ -217,7 +215,7 @@ impl Cache {
     /// # Examples
     ///
     /// ```rust
-    /// use serenity::cache::{Cache, Settings};
+    /// use serenity_core::cache::{Cache, Settings};
     ///
     /// let mut settings = Settings::default();
     /// settings.max_messages = 10;
@@ -268,10 +266,8 @@ impl Cache {
     /// data received. A single [`User`] may have multiple associated member objects that have not
     /// been received.
     ///
-    /// This can be used in combination with [`Shard::chunk_guild`], and can be used to determine
+    /// This can be used in combination with guild chunking, and can be used to determine
     /// how many members have not yet been received.
-    ///
-    /// [`Shard::chunk_guild`]: crate::gateway::Shard::chunk_guild
     pub fn unknown_members(&self) -> u32 {
         let mut total = 0;
 
@@ -290,38 +286,9 @@ impl Cache {
 
     /// Fetches a vector of all [`Guild`]s' Ids that are stored in the cache.
     ///
-    /// Note that if you are utilizing multiple [`Shard`]s, then the guilds retrieved over all
-    /// shards are included in this count -- not just the current [`Context`]'s shard, if accessing
-    /// from one.
-    ///
-    /// # Examples
-    ///
-    /// Print all of the Ids of guilds in the Cache:
-    ///
-    /// ```rust,no_run
-    /// # use serenity::model::event::FullEvent;
-    /// # use serenity::prelude::*;
-    ///
-    /// struct Handler;
-    ///
-    /// #[serenity::async_trait]
-    /// impl EventHandler for Handler {
-    ///     async fn dispatch(&self, ctx: &Context, event: &FullEvent) {
-    ///         match event {
-    ///             FullEvent::Ready {
-    ///                 data_about_bot, ..
-    ///             } => {
-    ///                 let guilds = ctx.cache.guilds().len();
-    ///                 println!("Guilds in the Cache: {guilds}");
-    ///             },
-    ///             _ => {},
-    ///         }
-    ///     }
-    /// }
-    /// ```
-    ///
-    /// [`Context`]: crate::gateway::client::Context
-    /// [`Shard`]: crate::gateway::Shard
+    /// Note that if you are utilizing multiple shards, then the guilds retrieved over all shards
+    /// are included in this count -- not just the current shard (assuming you are connecting via
+    /// the gateway).
     pub fn guilds(&self) -> Vec<GuildId> {
         let unavailable_guilds = self.unavailable_guilds();
 
@@ -337,9 +304,9 @@ impl Cache {
     /// Find all messages by user ID 8 in channel ID 7:
     ///
     /// ```rust,no_run
-    /// # use serenity::model::id::GenericChannelId;
+    /// # use serenity_core::model::id::GenericChannelId;
     /// #
-    /// # let cache: serenity::cache::Cache = todo!();
+    /// # let cache: serenity_core::cache::Cache = todo!();
     /// if let Some(messages_in_channel) = cache.channel_messages(GenericChannelId::new(7)) {
     ///     let messages_by_user: Vec<_> =
     ///         messages_in_channel.iter().filter(|m| m.author.id == 8).collect();
@@ -356,8 +323,8 @@ impl Cache {
     /// Retrieve a guild from the cache and print its name:
     ///
     /// ```rust,no_run
-    /// # use serenity::cache::Cache;
-    /// # use serenity::model::id::GuildId;
+    /// # use serenity_core::cache::Cache;
+    /// # use serenity_core::model::id::GuildId;
     /// #
     /// # let cache = Cache::default();
     /// // assuming the cache is in scope, e.g. via `Context`
@@ -394,8 +361,8 @@ impl Cache {
     /// Retrieving the message object from a channel.
     ///
     /// ```rust,no_run
-    /// # use serenity::cache::Cache;
-    /// # use serenity::model::channel::Message;
+    /// # use serenity_core::cache::Cache;
+    /// # use serenity_core::model::channel::Message;
     /// #
     /// # fn run(cache: Cache, message: Message) {
     /// #
@@ -428,7 +395,7 @@ impl Cache {
     /// Printing the maximum number of messages in a channel to be cached:
     ///
     /// ```rust
-    /// use serenity::cache::Cache;
+    /// use serenity_core::cache::Cache;
     ///
     /// # fn test() {
     /// let mut cache = Cache::new();

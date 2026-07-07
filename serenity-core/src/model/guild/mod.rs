@@ -232,7 +232,8 @@ pub struct Guild {
     /// Users who are members of the guild.
     ///
     /// Members might not all be available when the [`ReadyEvent`] is received if the
-    /// [`Self::member_count`] is greater than the [Large Threshold] set by the library.
+    /// [`Self::member_count`] is greater than the [Large Threshold] set by the library when
+    /// identifying.
     ///
     /// [Large Threshold]: https://docs.discord.com/developers/events/gateway-events#identify-identify-structure
     pub members: ExtractMap<UserId, Member>,
@@ -309,16 +310,16 @@ impl Guild {
 
     /// Creates a guild with the data provided.
     ///
-    /// Only a [`PartialGuild`] will be immediately returned, and a full [`Guild`] will be received
-    /// over a [`Shard`].
+    /// Only a [`PartialGuild`] will be immediately returned, and a full [`Guild`] will later be
+    /// sent over the gateway via a [`GuildCreateEvent`], if at least one shard is running.
     ///
     /// # Examples
     ///
     /// Create a guild called `"test"` in the [US West region] with no icon:
     ///
     /// ```rust,no_run
-    /// # use serenity::http::Http;
-    /// use serenity::model::guild::Guild;
+    /// # use serenity_core::http::Http;
+    /// use serenity_core::model::guild::Guild;
     /// # async fn run() -> Result<(), Box<dyn std::error::Error>> {
     /// # let http: Http = unimplemented!();
     /// let guild = Guild::create(&http, "test", None).await;
@@ -329,8 +330,6 @@ impl Guild {
     /// # Errors
     ///
     /// Returns [`Error::Request`] if the current user cannot create a Guild.
-    ///
-    /// [`Shard`]: crate::gateway::Shard
     #[deprecated = "This endpoint has been deprecated by Discord and will stop functioning after July 15, 2025. For more information, see: https://docs.discord.com/developers/change-log#deprecating-guild-creation-by-apps"]
     pub async fn create(http: &Http, name: &str, icon: Option<ImageHash>) -> Result<PartialGuild> {
         #[derive(serde::Serialize)]
@@ -381,8 +380,8 @@ impl Guild {
     /// Change a guild's icon using a file named "icon.png":
     ///
     /// ```rust,no_run
-    /// # use serenity::builder::{EditGuild, CreateAttachment};
-    /// # use serenity::{http::Http, model::guild::Guild};
+    /// # use serenity_core::builder::{EditGuild, CreateAttachment};
+    /// # use serenity_core::{http::Http, model::guild::Guild};
     /// #
     /// # async fn run() -> Result<(), Box<dyn std::error::Error>> {
     /// # let http: Http = unimplemented!();
@@ -978,12 +977,12 @@ impl Guild {
     /// Obtain a reference to a [`Role`] by its name.
     ///
     /// ```rust,no_run
-    /// # use serenity::model::prelude::*;
-    /// # use serenity::prelude::*;
+    /// # use serenity_core::model::prelude::*;
+    /// # use serenity_core::error::Result;
     ///
     /// # #[cfg(feature = "cache")]
     /// # async fn run() -> Result<(), Box<dyn std::error::Error>> {
-    /// # let cache: serenity::cache::Cache = unimplemented!();
+    /// # let cache: serenity_core::cache::Cache = unimplemented!();
     /// # let msg: Message = unimplemented!();
     ///
     /// if let Some(guild_id) = msg.guild_id {

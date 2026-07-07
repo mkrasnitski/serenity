@@ -26,7 +26,7 @@ use crate::model::prelude::*;
 /// 1. Retrieving the code from the URL `"https://discord.gg/0cDvIgU2voY8RSYL"`:
 ///
 /// ```rust
-/// use serenity::utils;
+/// use serenity_core::utils;
 ///
 /// let url = "https://discord.gg/0cDvIgU2voY8RSYL";
 ///
@@ -36,7 +36,7 @@ use crate::model::prelude::*;
 /// 2. Retrieving the code from the URL `"http://discord.com/invite/0cDvIgU2voY8RSYL"`:
 ///
 /// ```rust
-/// use serenity::utils;
+/// use serenity_core::utils;
 ///
 /// let url = "http://discord.com/invite/0cDvIgU2voY8RSYL";
 ///
@@ -66,7 +66,7 @@ pub fn parse_invite(code: &str) -> &str {
 /// ```rust
 /// use std::num::NonZeroU16;
 ///
-/// use serenity::utils::parse_user_tag;
+/// use serenity_core::utils::parse_user_tag;
 ///
 /// assert_eq!(parse_user_tag("kangalioo#9108"), Some(("kangalioo", NonZeroU16::new(9108))));
 /// assert_eq!(parse_user_tag("kangalioo#10108"), None);
@@ -94,8 +94,8 @@ pub fn parse_user_tag(s: &str) -> Option<(&str, Option<NonZeroU16>)> {
 /// Retrieving an Id from a valid [`User`] mention:
 ///
 /// ```rust
-/// use serenity::model::id::UserId;
-/// use serenity::utils::parse_user_mention;
+/// use serenity_core::model::id::UserId;
+/// use serenity_core::utils::parse_user_mention;
 ///
 /// // regular username mention
 /// assert_eq!(parse_user_mention("<@114941315417899012>"), Some(UserId::new(114941315417899012)));
@@ -107,7 +107,7 @@ pub fn parse_user_tag(s: &str) -> Option<(&str, Option<NonZeroU16>)> {
 /// Asserting that an invalid username or nickname mention returns [`None`]:
 ///
 /// ```rust
-/// use serenity::utils::parse_user_mention;
+/// use serenity_core::utils::parse_user_mention;
 ///
 /// assert!(parse_user_mention("<@1149413154aa17899012").is_none());
 /// assert!(parse_user_mention("<@!11494131541789a90b1c2").is_none());
@@ -139,8 +139,8 @@ pub fn parse_user_mention(mention: &str) -> Option<UserId> {
 /// Retrieving an Id from a valid [`Role`] mention:
 ///
 /// ```rust
-/// use serenity::model::id::RoleId;
-/// use serenity::utils::parse_role_mention;
+/// use serenity_core::model::id::RoleId;
+/// use serenity_core::utils::parse_role_mention;
 ///
 /// assert_eq!(parse_role_mention("<@&136107769680887808>"), Some(RoleId::new(136107769680887808)));
 /// ```
@@ -148,7 +148,7 @@ pub fn parse_user_mention(mention: &str) -> Option<UserId> {
 /// Asserting that an invalid role mention returns [`None`]:
 ///
 /// ```rust
-/// use serenity::utils::parse_role_mention;
+/// use serenity_core::utils::parse_role_mention;
 ///
 /// assert!(parse_role_mention("<@&136107769680887808").is_none());
 /// ```
@@ -177,8 +177,8 @@ pub fn parse_role_mention(mention: &str) -> Option<RoleId> {
 /// Retrieving an Id from a valid [`Channel`] mention:
 ///
 /// ```rust
-/// use serenity::model::id::GenericChannelId;
-/// use serenity::utils::parse_channel_mention;
+/// use serenity_core::model::id::GenericChannelId;
+/// use serenity_core::utils::parse_channel_mention;
 ///
 /// assert_eq!(
 ///     parse_channel_mention("<#81384788765712384>"),
@@ -189,7 +189,7 @@ pub fn parse_role_mention(mention: &str) -> Option<RoleId> {
 /// Asserting that an invalid channel mention returns [`None`]:
 ///
 /// ```rust
-/// use serenity::utils::parse_channel_mention;
+/// use serenity_core::utils::parse_channel_mention;
 ///
 /// assert!(parse_channel_mention("<#!81384788765712384>").is_none());
 /// assert!(parse_channel_mention("<#81384788765712384").is_none());
@@ -220,9 +220,9 @@ pub fn parse_channel_mention(mention: &str) -> Option<GenericChannelId> {
 /// Ensure that a valid [`Emoji`] usage is correctly parsed:
 ///
 /// ```rust
-/// use serenity::model::id::{EmojiId, GuildId};
-/// use serenity::model::misc::EmojiIdentifier;
-/// use serenity::utils::parse_emoji;
+/// use serenity_core::model::id::{EmojiId, GuildId};
+/// use serenity_core::model::misc::EmojiIdentifier;
+/// use serenity_core::utils::parse_emoji;
 ///
 /// let emoji = parse_emoji("<:smugAnimeFace:302516740095606785>").unwrap();
 /// assert_eq!(emoji.animated, false);
@@ -233,7 +233,7 @@ pub fn parse_channel_mention(mention: &str) -> Option<GenericChannelId> {
 /// Asserting that an invalid emoji usage returns [`None`]:
 ///
 /// ```rust
-/// use serenity::utils::parse_emoji;
+/// use serenity_core::utils::parse_emoji;
 ///
 /// assert!(parse_emoji("<:smugAnimeFace:302516740095606785").is_none());
 /// ```
@@ -287,7 +287,7 @@ pub fn parse_emoji(mention: &str) -> Option<EmojiIdentifier> {
 /// Parsing two quoted commands:
 ///
 /// ```rust
-/// use serenity::utils::parse_quotes;
+/// use serenity_core::utils::parse_quotes;
 ///
 /// let command = r#""this is the first" "this is the second""#;
 /// let expected = vec!["this is the first".to_string(), "this is the second".to_string()];
@@ -296,7 +296,7 @@ pub fn parse_emoji(mention: &str) -> Option<EmojiIdentifier> {
 /// ```
 ///
 /// ```rust
-/// use serenity::utils::parse_quotes;
+/// use serenity_core::utils::parse_quotes;
 ///
 /// let command = r#""this is a quoted command that doesn't have an ending quotation"#;
 /// let expected =
@@ -373,8 +373,8 @@ const MAX_DOMAIN_LEN: usize = {
 ///
 /// # Examples
 /// ```rust
-/// use serenity::model::prelude::*;
-/// use serenity::utils::parse_message_id_pair;
+/// use serenity_core::model::prelude::*;
+/// use serenity_core::utils::parse_message_id_pair;
 ///
 /// assert_eq!(
 ///     parse_message_id_pair("673965002805477386-842482646604972082"),
@@ -399,8 +399,8 @@ pub fn parse_message_id_pair(s: &str) -> Option<(GenericChannelId, MessageId)> {
 ///
 /// # Examples
 /// ```rust
-/// use serenity::model::prelude::*;
-/// use serenity::utils::parse_message_url;
+/// use serenity_core::model::prelude::*;
+/// use serenity_core::utils::parse_message_url;
 ///
 /// assert_eq!(
 ///     parse_message_url(
@@ -448,8 +448,8 @@ pub fn parse_message_url(s: &str) -> Option<(GuildId, GenericChannelId, MessageI
 ///
 /// # Examples
 /// ```rust
-/// use serenity::model::prelude::*;
-/// use serenity::utils::parse_channel_url;
+/// use serenity_core::model::prelude::*;
+/// use serenity_core::utils::parse_channel_url;
 ///
 /// assert_eq!(
 ///     parse_channel_url("https://discord.com/channels/381880193251409931/381880193700069377"),
@@ -488,8 +488,8 @@ pub fn parse_channel_url(s: &str) -> Option<(GuildId, GenericChannelId)> {
 /// Retrieve the Id of the shard for a guild with Id `81384788765712384`, using 17 shards:
 ///
 /// ```rust
-/// use serenity::model::id::GuildId;
-/// use serenity::utils;
+/// use serenity_core::model::id::GuildId;
+/// use serenity_core::utils;
 ///
 /// let guild_id = GuildId::new(81384788765712384);
 /// let shard_total = std::num::NonZeroU16::new(17).unwrap();

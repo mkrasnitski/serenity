@@ -151,7 +151,7 @@ impl Invite {
     ///
     /// ```rust
     /// # use serde_json::{json, from_value};
-    /// # use serenity::model::prelude::*;
+    /// # use serenity_core::model::prelude::*;
     /// #
     /// # fn main() {
     /// # let invite = from_value::<Invite>(json!({
