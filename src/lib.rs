@@ -48,34 +48,9 @@
 //! [docs]: https://docs.discord.com/developers/intro
 //! [examples]: https://github.com/serenity-rs/serenity/tree/current/examples
 //! [gateway docs]: crate::gateway
+
 #![doc(html_root_url = "https://docs.rs/serenity/*")]
 #![cfg_attr(docsrs, feature(doc_cfg))]
-#![forbid(unsafe_code)]
-#![warn(
-    unused,
-    clippy::unwrap_used,
-    clippy::clone_on_ref_ptr,
-    clippy::non_ascii_literal,
-    clippy::fallible_impl_from,
-    clippy::let_underscore_must_use,
-    clippy::format_push_string,
-    clippy::allow_attributes,
-    clippy::pedantic
-)]
-#![allow(
-    // Allowed as they are too pedantic
-    clippy::cast_possible_truncation,
-    clippy::module_name_repetitions,
-    clippy::unreadable_literal,
-    clippy::cast_possible_wrap,
-    clippy::wildcard_imports,
-    clippy::cast_sign_loss,
-    clippy::too_many_lines,
-    clippy::doc_markdown,
-    clippy::missing_panics_doc,
-    clippy::doc_link_with_quotes,
-    clippy::struct_field_names
-)]
 #![cfg_attr(test, allow(clippy::unwrap_used))]
 
 #[cfg(feature = "gateway")]

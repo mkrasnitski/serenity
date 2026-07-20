@@ -1,3 +1,6 @@
+#![cfg_attr(docsrs, feature(doc_cfg))]
+#![cfg_attr(test, allow(clippy::unwrap_used))]
+
 #[macro_use]
 extern crate serde;
 

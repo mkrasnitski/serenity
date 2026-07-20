@@ -47,6 +47,31 @@ tracing = { version = "0.1.44", features = ["log"] }
 typesize = { version = "0.1.14", features = ["url", "time", "serde_json", "secrecy", "parking_lot", "nonmax"] }
 url = { version = "2.5.7", features = ["serde"] }
 
+[workspace.lints.rust]
+unused = { level = "warn", priority = -1 }
+unsafe_code = "forbid"
+
+[workspace.lints.clippy]
+pedantic = { level = "warn", priority = -1 }
+unwrap_used = "warn"
+clone_on_ref_ptr = "warn"
+non_ascii_literal = "warn"
+fallible_impl_from = "warn"
+let_underscore_must_use = "warn"
+allow_attributes = "warn"
+
+# Allowed as they are too pedantic
+cast_possible_truncation = "allow"
+unreadable_literal = "allow"
+cast_possible_wrap = "allow"
+wildcard_imports = "allow"
+cast_sign_loss = "allow"
+too_many_lines = "allow"
+doc_markdown = "allow"
+missing_panics_doc = "allow"
+doc_link_with_quotes = "allow"
+struct_field_names = "allow"
+
 [dependencies]
 # Serenity workspace crates
 serenity-core = { path = "serenity-core" }
@@ -75,6 +100,9 @@ ed25519-dalek = { version = "2.2.0", optional = true }
 flate2 = { version = "1.1.9", features = ["zlib-rs"], optional = true }
 tokio-tungstenite = { version = "0.28.0", features = ["url"], optional = true }
 zstd = { version = "0.13", default-features = false, optional = true }
+
+[lints]
+workspace = true
 
 [features]
 # Defaults with different backends

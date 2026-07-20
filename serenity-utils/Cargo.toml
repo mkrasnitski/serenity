@@ -29,6 +29,9 @@ zeroize = { version = "1.8.2" } # Not used in serenity, but bumps the minimal ve
 # Optional dependencies
 chrono = { version = "0.4.42", default-features = false, features = ["clock", "serde"], optional = true }
 
+[lints]
+workspace = true
+
 [features]
 chrono = ["dep:chrono", "typesize?/chrono"]
 tokio_task_builder = ["tokio/tracing"]
