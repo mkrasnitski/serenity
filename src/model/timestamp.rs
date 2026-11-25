@@ -59,7 +59,7 @@ impl Timestamp {
     pub(crate) fn from_discord_id(id: u64) -> Self {
         // This can't fail because of the bit shifting
         // `(u64::MAX >> 22) + DISCORD_EPOCH` = 5818116911103 = "Wed May 15 2154 07:35:11 GMT+0000"
-        Self::from_millis(((id >> 22) + DISCORD_EPOCH) as i64).expect("can't fail")
+        Self::from_millis(((id >> 22) + DISCORD_EPOCH).cast_signed()).expect("can't fail")
     }
 
     /// Create a new `Timestamp` with the current date and time in UTC.

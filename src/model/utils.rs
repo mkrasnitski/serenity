@@ -110,7 +110,7 @@ impl<'de> serde::Deserialize<'de> for StrOrInt<'de> {
             }
 
             fn visit_i64<E: serde::de::Error>(self, val: i64) -> StdResult<Self::Value, E> {
-                self.visit_u64(val as _)
+                self.visit_u64(val.cast_unsigned())
             }
 
             fn visit_u64<E: serde::de::Error>(self, val: u64) -> Result<Self::Value, E> {

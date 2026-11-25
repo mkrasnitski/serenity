@@ -119,7 +119,7 @@ macro_rules! id_u64 {
 
             impl From<$name> for i64 {
                 fn from(id: $name) -> i64 {
-                    id.get() as i64
+                    id.get().cast_signed()
                 }
             }
 
