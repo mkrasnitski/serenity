@@ -222,53 +222,15 @@ impl From<TransportCompression> for Compression {
     }
 }
 
-pub struct WsClient {
-    stream: WebSocketStream<MaybeTlsStream<MaybeTlsStream<TcpStream>>>,
-    compression: Compression,
+struct GatewayProxy<'a> {
+    host: Host<&'a str>,
+    port: u16,
+    auth: Option<Vec<u8>>,
+    tls: bool,
 }
 
-const TIMEOUT: Duration = Duration::from_millis(500);
-
-fn transport_err_to_lib(err: TungsteniteError) -> Error {
-    Error::Gateway(GatewayError::Transport(GatewayTransportError::new(err)))
-}
-
-impl WsClient {
-    pub(crate) async fn connect(
-        url: Url,
-        proxy: Option<&Url>,
-        compression: TransportCompression,
-    ) -> Result<Self> {
-        let config = {
-            let mut config = WebSocketConfig::default();
-            config.max_message_size = None;
-            config.max_frame_size = None;
-
-            config
-        };
-
-        let (Some(host), Some(port)) = (url.host(), url.port_or_known_default()) else {
-            return Err(Error::Gateway(GatewayError::BuildingUrl));
-        };
-        let stream = match proxy {
-            Some(proxy) => Self::connect_through_proxy(host, port, proxy).await?,
-            None => MaybeTlsStream::Plain(Self::connect_tcp(host, port).await?),
-        };
-        let (stream, _) = client_async_tls_with_config(url, stream, Some(config), None)
-            .await
-            .map_err(transport_err_to_lib)?;
-
-        Ok(Self {
-            stream,
-            compression: compression.into(),
-        })
-    }
-
-    async fn connect_through_proxy(
-        target_host: Host<&str>,
-        target_port: u16,
-        proxy: &Url,
-    ) -> Result<MaybeTlsStream<TcpStream>> {
+impl<'a> GatewayProxy<'a> {
+    fn new(proxy: &'a Url) -> Result<Self> {
         let tls = match proxy.scheme() {
             "http" => false,
             "https" => true,
@@ -279,29 +241,28 @@ impl WsClient {
                 )));
             },
         };
-        if !tls && proxy.password().is_some() {
+
+        let (Some(host), Some(port)) = (proxy.host(), proxy.port_or_known_default()) else {
+            return Err(Error::Gateway(GatewayError::BuildingUrl));
+        };
+
+        let username = proxy.username();
+        let password = proxy.password();
+
+        if !tls && password.is_some() {
             return Err(Error::Io(IoError::new(
                 ErrorKind::Unsupported,
                 "password authentication over HTTP is unsupported",
             )));
         }
 
-        let (Some(proxy_host), Some(proxy_port)) = (proxy.host(), proxy.port_or_known_default())
-        else {
-            return Err(Error::Gateway(GatewayError::BuildingUrl));
-        };
-
-        let authority = format!("{target_host}:{target_port}");
-        let mut request = Request::connect(&authority).header(HOST, &authority);
-
-        let username = proxy.username();
-        let password = proxy.password();
-        if !username.is_empty() || password.is_some() {
+        let auth = if !username.is_empty() || password.is_some() {
             use std::io::Write;
 
             let mut header = "Basic ".as_bytes().to_vec();
             let username_bytes = Cow::from(percent_decode_str(username));
             let password_bytes = Cow::from(percent_decode_str(password.unwrap_or_default()));
+
             {
                 let mut encoder = EncoderWriter::new(&mut header, &BASE64_STANDARD);
                 encoder.write_all(&username_bytes)?;
@@ -309,39 +270,89 @@ impl WsClient {
                 encoder.write_all(&password_bytes)?;
                 encoder.finish()?;
             }
-            request = request.header(PROXY_AUTHORIZATION, header);
-        }
-        let request = request.body(String::new()).map_err(IoError::other)?;
 
-        let stream = if tls {
-            Self::connect_tls(proxy_host, proxy_port).await?
+            Some(header)
         } else {
-            MaybeTlsStream::Plain(Self::connect_tcp(proxy_host, proxy_port).await?)
+            None
         };
-        let (mut sender, conn) =
-            http1::handshake(TokioIo::new(stream)).await.map_err(IoError::other)?;
 
-        // `sender` drops with its block once the response is read, so `conn` stops waiting
-        let (response, ()) = tokio::try_join!(
-            async move { sender.send_request(request).await },
-            conn.with_upgrades()
-        )
-        .map_err(IoError::other)?;
+        Ok(Self {
+            host,
+            port,
+            auth,
+            tls,
+        })
+    }
+}
 
-        if !response.status().is_success() {
-            let status = response.status();
-            return Err(Error::Io(IoError::other(format!("proxy refused to tunnel: {status}"))));
+struct GatewayEndpoint<'a> {
+    target_host: Host<&'a str>,
+    target_port: u16,
+    proxy: Option<GatewayProxy<'a>>,
+}
+
+impl<'a> GatewayEndpoint<'a> {
+    fn new(gateway: &'a Url, proxy: Option<&'a Url>) -> Result<Self> {
+        let (Some(target_host), Some(target_port)) =
+            (gateway.host(), gateway.port_or_known_default())
+        else {
+            return Err(Error::Gateway(GatewayError::BuildingUrl));
+        };
+
+        Ok(Self {
+            target_host,
+            target_port,
+            proxy: proxy.map(GatewayProxy::new).transpose()?,
+        })
+    }
+
+    async fn connect(self) -> Result<MaybeTlsStream<TcpStream>> {
+        if let Some(proxy) = self.proxy {
+            let stream = if proxy.tls {
+                Self::connect_tls(proxy.host, proxy.port).await?
+            } else {
+                MaybeTlsStream::Plain(Self::connect_tcp(proxy.host, proxy.port).await?)
+            };
+
+            let (mut sender, conn) =
+                http1::handshake(TokioIo::new(stream)).await.map_err(IoError::other)?;
+
+            let authority = format!("{}:{}", self.target_host, self.target_port);
+            let mut request = Request::connect(&authority).header(HOST, &authority);
+            if let Some(header) = proxy.auth {
+                request = request.header(PROXY_AUTHORIZATION, header);
+            }
+            let request = request.body(String::new()).map_err(IoError::other)?;
+
+            // `sender` drops with its block once the response is read, so `conn` stops waiting
+            let (response, ()) = tokio::try_join!(
+                async move { sender.send_request(request).await },
+                conn.with_upgrades()
+            )
+            .map_err(IoError::other)?;
+
+            if !response.status().is_success() {
+                let status = response.status();
+                return Err(Error::Io(IoError::other(format!(
+                    "proxy refused to tunnel: {status}"
+                ))));
+            }
+
+            let upgraded = hyper::upgrade::on(response).await.map_err(IoError::other)?;
+            let parts = upgraded
+                .downcast::<TokioIo<_>>()
+                .map_err(|_| IoError::other("unexpected stream type after proxy upgrade"))?;
+            if !parts.read_buf.is_empty() {
+                return Err(Error::Io(IoError::other(
+                    "proxy sent data before the tunnel was used",
+                )));
+            }
+
+            Ok(parts.io.into_inner())
+        } else {
+            let tcp = Self::connect_tcp(self.target_host, self.target_port).await?;
+            Ok(MaybeTlsStream::Plain(tcp))
         }
-
-        let upgraded = hyper::upgrade::on(response).await.map_err(IoError::other)?;
-        let parts = upgraded
-            .downcast::<TokioIo<MaybeTlsStream<TcpStream>>>()
-            .map_err(|_| IoError::other("unexpected stream type after proxy upgrade"))?;
-        if !parts.read_buf.is_empty() {
-            return Err(Error::Io(IoError::other("proxy sent data before the tunnel was used")));
-        }
-
-        Ok(parts.io.into_inner())
     }
 
     async fn connect_tcp(host: Host<&str>, port: u16) -> Result<TcpStream> {
@@ -350,7 +361,6 @@ impl WsClient {
             Host::Ipv4(ip) => TcpStream::connect((ip, port)).await?,
             Host::Ipv6(ip) => TcpStream::connect((ip, port)).await?,
         };
-
         Ok(stream)
     }
 
@@ -389,11 +399,48 @@ impl WsClient {
             Host::Ipv6(ip) => ServerName::from(ip),
         };
 
-        let config = Arc::new(ClientConfig::with_platform_verifier().map_err(IoError::other)?);
+        let config = ClientConfig::with_platform_verifier().map_err(IoError::other)?;
         let tcp = Self::connect_tcp(host, port).await?;
-        let tls = TlsConnector::from(config).connect(server_name.to_owned(), tcp).await?;
+        let tls = TlsConnector::from(Arc::new(config)).connect(server_name.to_owned(), tcp).await?;
 
         Ok(MaybeTlsStream::Rustls(tls))
+    }
+}
+
+pub struct WsClient {
+    stream: WebSocketStream<MaybeTlsStream<MaybeTlsStream<TcpStream>>>,
+    compression: Compression,
+}
+
+const TIMEOUT: Duration = Duration::from_millis(500);
+
+fn transport_err_to_lib(err: TungsteniteError) -> Error {
+    Error::Gateway(GatewayError::Transport(GatewayTransportError::new(err)))
+}
+
+impl WsClient {
+    pub(crate) async fn connect(
+        url: Url,
+        proxy: Option<&Url>,
+        compression: TransportCompression,
+    ) -> Result<Self> {
+        let config = {
+            let mut config = WebSocketConfig::default();
+            config.max_message_size = None;
+            config.max_frame_size = None;
+
+            config
+        };
+
+        let stream = GatewayEndpoint::new(&url, proxy)?.connect().await?;
+        let (stream, _) = client_async_tls_with_config(url, stream, Some(config), None)
+            .await
+            .map_err(transport_err_to_lib)?;
+
+        Ok(Self {
+            stream,
+            compression: compression.into(),
+        })
     }
 
     pub(crate) async fn recv_json(&mut self) -> Result<Option<GatewayEvent>> {
